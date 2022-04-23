@@ -1,4 +1,4 @@
-%% Automated AquaCrop-OpenSource (AAOS) - Execution file
+% Automated AquaCrop-OpenSource (AAOS) - Execution file
 % Felix Bruckmaier (2022)
 % Script to run AAOS
 %
@@ -8,9 +8,11 @@
 % and 2 target variables (Harvested Biomass/ Harvested Yield), 2 different
 % parameter value sets (Default/ Calibrated), and up to 3 different
 % calibration rounds (according to the AquaCrop calibration guidelines)
-% (now possible for season = 2019, lot #1, CanopyCover, Yield)
-% NOTE: The tool does NOT offer automated calibration; the user is required
-% to provide input files with both default, and calibrated parameter values.
+% (now possible for season = 2019)
+% NOTE: The tool automatizes the AOS model run to facilitate an easier and
+% more efficient comparison of different simulation outputs, does NOT automatically
+% calibrate AOS, hence the user is required to still manually calibrate,
+% by adjusting the parameter values in the AAOS speadsheet input files.
 
 % COMING SOON:
 % > Validation of the calibrated model through the 'Validation Set Approach';
@@ -23,20 +25,16 @@
 %% Usage:
 % Specify config files in subfolder 'config': 'default.m' and config file
 % for respective season
-
 function [] = RUN_AAOS(config_custom)
-
-
 tic % Set timer
-fclose ('all'); % Close open files
 
-% Determine directories and loads config & input data:
-[Directory, Config] = AAOS_Initialize();
+% Determine directories and load config & input data:
+[Directory,Config,ModelOut] = AAOS_Initialize();
 
-Config = AAOS_PerformAnalysis(Config,Directory);
+% Perform selected AAOS analysis:
+[Config,ModelOut] = AAOS_Analyze(Directory,Config,ModelOut);
 
-fclose ('all'); % Close open files
-%if InclExcel == 'Y'; actxserver('Excel.Application').Quit; end
-timer = toc/60; % mins.
-disp("Time elapsed: "+timer+" mins.");
-%end
+% Finalize output and, in case, write to Excel file:
+ModelOut = AAOS_Finalize(Directory,Config,ModelOut);
+
+disp("Time elapsed: "+round(toc/60)+" mins."); % Output computation time

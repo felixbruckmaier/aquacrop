@@ -1,5 +1,6 @@
 %% Read & store AOS-simulated target & test variable (at harvest day/ timeseries):
-function [Config,ModelOut] = AAOS_ReadAOSsimulationOutput(Config,ObsTestVar)
+function [Config,SimVar] = ...
+    AAOS_ReadAOSsimulationOutput(Config,TestVarNameShort,ObsTestVar)
 
 global AOS_InitialiseStruct
 
@@ -38,20 +39,21 @@ end
     Config.SimTargetVariable = SimTargetVarHarvest;
 
 % Assign & store simulated timeseries of test variable, unless that is "HI":
-    if Config.TestVarNameFull ~= "HarvestIndex"
-        if Config.TestVarNameFull == "CanopyCover"
+    if TestVarNameShort == "HI"
+        SimVar = [];
+    else
+        if TestVarNameShort == "CC"
             SimTestVar = CropGrowth([ObsTestVar(:,1)],9);
-        elseif Config.TestVarNameFull ==  "SoilWaterContent"
-            SimSWC = readtable(Config.season+"_WaterContents.txt","ReadVariableNames",false);
-            SimTestVar = table2array(SimSWC([ObsTestVar(:,1)],5+Config.AvailSWCObsDepths(Config.TestSWCidx)));
-
+        elseif TestVarNameShort ==  "SWC"
+            SimSWC = AOS_InitialiseStruct.Outputs.WaterContents;
+            SimTestVar = SimSWC([ObsTestVar(:,1)],5+Config.idx_SimDepthsObservations(Config.idx_TestSWC));
         end
-        ModelOut = SimTestVar;
+        SimVar = SimTestVar(~isnan(Config.TestVariableObservations(:,2)));
         Config.SimulatedTestVariable = SimTestVar;
     end
 
 %     if Config.RUN_type == "GSA"
 %         Config.GDDsum = cumsum(CropGrowth(1:CropGrowth(find(CropGrowth(:,6)>-999, 1 , 'last'),6)));
-%         ModelOut(end+1) = SimTargetVarHarvest;
+%         SimVar(end+1) = SimTargetVarHarvest;
 %     end
 % end

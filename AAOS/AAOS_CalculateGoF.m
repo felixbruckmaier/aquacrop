@@ -10,7 +10,6 @@ if size(SimValues,1) == 1
 
 else
     % For timeseries with >1 value -> Determine active GoF and calculate value:
-    %format long g
 
     % A) Calculate R2:
     if find(strcmp(Config.GoF,"R2"))

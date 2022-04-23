@@ -1,7 +1,7 @@
 %% Reads user-specified target variable name and all available observations
 % from .csv input files. Available: Biomass and Yield.
 % Number of lots with available target variable observations = number of lots
-% that are included in the analysis.
+% that will be included in the analysis.
 function TargetVar = AAOS_ReadTargetVariableConfig(Config,Directory)
 
 % Find the file in the correct directory:
@@ -16,13 +16,13 @@ TargetVar.NameFull = string(TargetVarObs_data.Properties.VariableNames(1));
 TargetVar.Observations = table2array(TargetVarObs_data(1:end,3:5));
 TargetVar.MaxValue = max(max(TargetVar.Observations(1:end,3:end)));
 
-% Determine and store abbreviated variable name:
+% Determine and store Shorteviated variable name:
 if TargetVar.NameFull == "Biomass"
-    TargetVar.NameAbbr = "BM";
+    TargetVar.NameShort = "BM";
 elseif TargetVar.NameFull == "Yield"
-    TargetVar.NameAbbr = "Y";
+    TargetVar.NameShort = "Y";
 else
-    TargetVar.NameAbbr = "";
+    TargetVar.NameShort = "";
 end
 
-
+cd(Directory.BASE_PATH);

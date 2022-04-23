@@ -1,62 +1,84 @@
-%% Determines parameters & their values to analyze for current simulation
-% round:
-function Config = AAOS_ReadParameterValues(Config,VarIdx)
-
-ParData = Config.ParameterValues.(char(Config.RUN_type));
-ParTestSet = table2array(ParData(:,7));
+%% Determines test parameters & their specifications current simulation round:
+function Config = AAOS_ReadParameterValues(Config,VarIdx,SimRound)
 
 
+
+ParData = Config.ParameterValues.(Config.ParFileType);
+TestRound = table2array(ParData(:,7));
+% For calibration - see official AquaCrop calibration guideline:
+% SimRound #1: all variables default
+% SimRound #2: if only 1 variable -> calibrated;
+if numel(Config.TestVarIds) > 1 && ismember(SimRound,[2,3])
+    AllRows = 1:size(TestRound,1);
+    switch SimRound
+        % SimRound #2/ >1 variable -> CC calibrated, SWC (& HI) default:
+        case 2
+
+            TestParRows = AllRows(TestRound==2 | TestRound==3);
+
+            % SimRound #3 (only for >1 variable): CC & SWC calibrated (, HI default):
+        case 3
+            TestParRows = AllRows(TestRound==3);
+    end
+    ParData(TestParRows,8:end) = Config.ParameterValues.DEF(TestParRows,8:end);
+end
+% SimRound #4 (only for 3 variables): all variables calibrated = SimRound #1
 
 % all parameters except the ones explicitely excluded
 % (= negative index in par input file):
 if VarIdx == 0 
-    FixParAllLots = ParTestSet==0;
+    FixParAllLots = TestRound==0;
 
 % only parameters defined for specific round (i.e. either CC- or
 % SWC-related):
 elseif VarIdx > 0
-    FixParAllLots = ParTestSet~=VarIdx;
-
+%     FixParAllLots = ParTestSet~=VarIdx;
+AllParIdx = TestRound~=VarIdx;
 end
 
 
+Header = string(ParData.Properties.VariableNames);
+AllColumns = 1:size(Header,2);
+LotColumn = AllColumns(Header=="Lot"+Config.LotName);
 
-column_lot = find(string(ParData.Properties.VariableNames) == "Lot"+Config.LotName);
-AllValues = zeros(Config.AllParameterNumber,1);
-Decimals = zeros(Config.AllParameterNumber,1);
+Config.AllParameterNames = table2array(ParData(:,1)); % remove parameter Yld
+% formation which was added during the analysis
+Config.AllParameterValues = table2array(ParData(:,LotColumn));
 
-for idx_allpar = 1:Config.AllParameterNumber
-    Decimals(idx_allpar,:) = -log10(table2array(ParData(idx_allpar,6)));
-    val_i = table2array(ParData(idx_allpar,column_lot));
-    if val_i > -999
-        AllValues(idx_allpar) = val_i;
-        % if no value for this parameter on this Lot -> calculate the mean
-    elseif val_i <= -999 
-        val_j = table2array(ParData(idx_allpar,8:end));
-        val_j(val_j<=-999)=[];
-        AllValues(idx_allpar) = round(mean(val_j),Decimals(idx_allpar,:));
-    end
-end
+% FixParsCurrentLot = table2array(ParData(:,column_lot))<=-999;
+% FixParAll = FixParAllLots + FixParsCurrentLot;
+AllParIdx(AllParIdx == 2) = 1;
+Config.FixvsTestParameter = AllParIdx;
 
-ParData(:,column_lot) = array2table(AllValues);
-
-Config.AllParameterValues = AllValues;
-Config.AllParameterDec = Decimals;
-
-
-FixParsCurrentLot = table2array(ParData(:,column_lot))<=-999;
-FixParAll = FixParAllLots + FixParsCurrentLot;
-FixParAll(FixParAll == 2) = 1;
-Config.FixvsTestParameter = FixParAll;
-Config.TestParameterIdx = find(FixParAll==0);
-
-Config.FixParNames = Config.AllParameterNames(Config.FixvsTestParameter==1);
+Allidx = 1:size(AllParIdx,1);
 % only parameters to be tested on current lot:
+Config.TestParameterIdx = Allidx(AllParIdx==0);
 Config.TestParameterNames = Config.AllParameterNames(Config.FixvsTestParameter==0);
-Config.TestParameterAOSFile = table2array(ParData(FixParAll==0,2));
-Config.TestParameterLowLim = table2array(ParData(FixParAll==0,4));
-Config.TestParameterUppLim = table2array(ParData(FixParAll==0,5));
-Config.TestParameterValue = Config.AllParameterValues(Config.TestParameterIdx);
-%Config.TestParameterNumber = size(Config.TestParameterNames,1);
+Config.TestParameterAOSFile = table2array(ParData(AllParIdx==0,2));
+Config.TestParameterLowLim = table2array(ParData(AllParIdx==0,4));
+Config.TestParameterUppLim = table2array(ParData(AllParIdx==0,5));
+Config.AllParameterValues
+% CHANGE:
+% Config.TestParameterValues = Config.AllParameterValues(Config.TestParameterIdx);
+Config.TestParameterUnits = Config.AllParameterUnits(Config.TestParameterIdx);
 
+% Store values and units for all tested phenology parameters defined in
+% either GDD or CD to homogenize their unit before writing AOS input files:
+CropParameterNames = {'Maturity';'PlantingDate';'HarvestDate';'Emergence';...
+    'Senescence';'HIstart';'Flowering';'YldForm';'SeedSize';'PlantPop';...
+    'CCx';'CDC';'CGC';'MaxRooting'};
+[~,LocY_Pheno] = ismember(Config.AllParameterNames,CropParameterNames);
+[~,sortIdx] = sort(LocY_Pheno,'ascend');
+% Create struct with parameter names as field names to enhance
+% understanding of 'AAOS_CheckPhenology.m':
+CropNames = Config.AllParameterNames(sortIdx);
+CropParameters.InputValues = struct;
+Config.CropParameters.InputUnits = cell(size(CropNames,2));
+for idx = 1:size(CropNames,1)
+    CropParameters.InputValues.(string(CropNames(idx))) = Config.AllParameterValues(sortIdx(idx));
+end
+Config.CropParameters.InputValues = CropParameters.InputValues;
+% Store units as given by the user through AAOS parameter input file:
+CropParameters.InputUnits =  Config.AllParameterUnits(sortIdx);
+Config.CropParameters.InputUnits = CropParameters.InputUnits;
 
