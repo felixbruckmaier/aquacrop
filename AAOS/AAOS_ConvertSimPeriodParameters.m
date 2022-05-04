@@ -1,14 +1,15 @@
 %% Temporarily converts the sim period parameter units to serial format
-function [SimPeriodVals,LocY_SimPeriod] =...
+function [SimPeriodVals,SimPeriodValsDef,LocY_SimPeriod] =...
     AAOS_ConvertSimPeriodParameters(Config,ParNames,ParValues)
 
 SimPeriodPars = {'PlantingDate','HarvestDate','Maturity'};
 [LocX_SimPeriod,LocY_SimPeriod] = ismember(ParNames,SimPeriodPars);
-SimPeriodVals(1:3) = -999;
+SimPeriodValsDef = Config.SimPeriodValsDef;
+SimPeriodVals(1:3) = SimPeriodValsDef;
 SimPeriodVals(LocY_SimPeriod(LocY_SimPeriod>0)) = ParValues(LocX_SimPeriod);
 % Converts Planting or Harvest Date if any SimPeriod-relevant parameter
 % (=including Maturity) included in the analysis:
-if any(SimPeriodVals ~= -999)
+if any(SimPeriodVals ~= SimPeriodValsDef)
     Format = Config.DateFormat;
     Dates = SimPeriodVals(1:2);
     DatesString = string(Dates);

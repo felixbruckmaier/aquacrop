@@ -1,3 +1,4 @@
+%% ADJUSTMENT REQUIRED (SEE BELOW)
 %% Determine initial Soil Water Content (SWC) & write AOS input file for
 % the current lot.
 function [Config] = AAOS_WriteInitialSoilWaterContent(Config,Directory)
@@ -5,7 +6,7 @@ function [Config] = AAOS_WriteInitialSoilWaterContent(Config,Directory)
 %% Determine simulated & observed depths and observed SWC values:
 
 % Get number of available (observed) SWC observation depths
-[~,N_ObsSWCdepth] =  AAOS_ReadTestVariableObservations...
+[~,N_ObsSWCdepth] =  AAOS_ReadTestVariableObservationsFile...
     (Directory,Config,"SWC",0);
 % Get available SWC observation depths [m] & values
 if isnan(N_ObsSWCdepth) % no SWC observations on the current lot
@@ -14,7 +15,7 @@ if isnan(N_ObsSWCdepth) % no SWC observations on the current lot
 else
     for idx_SWCdepth = 1:N_ObsSWCdepth
         % Read user SWC observations:
-        [ObsSWCvalue,ObsSWCdepth] =  AAOS_ReadTestVariableObservations...
+        [ObsSWCvalue,ObsSWCdepth] =  AAOS_ReadTestVariableObservationsFile...
             (Directory,Config,"SWC",idx_SWCdepth);
         % Get depth [m] of current soil depth:
         ObsSWCdepths(idx_SWCdepth) = ObsSWCdepth;
@@ -33,6 +34,8 @@ else
         % Determine the value of the parameter for the current lot:
         idx_SubstHydrPar = ismember(Config.AllParameterNames,char(SWC_substitute));
         AllValues = Config.ParameterValues.(Config.ParFileType);
+        %% CHANGE: ONLY WORKS IF a) SHP ARE PROVIDED IN AAOS FILE, AND B)
+        % IF LOTS PROVIDE INPUT VALUES (~= SA/ UQ)!
         SWC_substitute = table2array(AllValues(idx_SubstHydrPar==1,7+Config.LotName));
     end
     % Determine which of the simulated depths show SWC observations:

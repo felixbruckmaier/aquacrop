@@ -22,8 +22,8 @@ for FileIdx = 1:FileNum
 
                 % Stress quantification/ sensitivity analysis use calibrated
                 % values:
-            case {"STQ","SA","UQ"}
-                Config.ParFileType = "CAL";
+            case {"STQ","EE","GLUE"}
+                Config.ParFileType = Config.RUN_type;
         end
 
     elseif FileIdx == 2

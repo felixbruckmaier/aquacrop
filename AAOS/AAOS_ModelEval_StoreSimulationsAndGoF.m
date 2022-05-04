@@ -15,7 +15,7 @@
 %% (15-20,21-26,27-32)) GoF#1-#3:
 % Recalc. CC / Calibr. CC / Def. CC / Calibr. SWC / Recalc SWC / Def. SWC
 
-function [ModelOut] = AAOS_StoreSimulationsAndGoF...
+function [ModelOut] = AAOS_ModelEval_StoreSimulationsAndGoF...
     (Config,ModelOut,SimRound,TestVarNameShort,SimTestVar,ObsTestVar)
 
 ModelEval = ModelOut.ModelEvaluation;

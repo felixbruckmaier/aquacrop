@@ -29,12 +29,12 @@ function [] = RUN_AAOS(config_custom)
 tic % Set timer
 
 % Determine directories and load config & input data:
-[Directory,Config,ModelOut] = AAOS_Initialize();
+[Directory,Config,AnalysisOut] = AAOS_Initialize();
 
 % Perform selected AAOS analysis:
-[Config,ModelOut] = AAOS_Analyze(Directory,Config,ModelOut);
+[Config,AnalysisOut] = AAOS_Analyze(Directory,Config,AnalysisOut);
 
 % Finalize output and, in case, write to Excel file:
-ModelOut = AAOS_Finalize(Directory,Config,ModelOut);
+AnalysisOut = AAOS_Finalize(Directory,Config,AnalysisOut);
 
 disp("Time elapsed: "+round(toc/60)+" mins."); % Output computation time

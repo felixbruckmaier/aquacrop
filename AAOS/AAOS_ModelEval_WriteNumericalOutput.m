@@ -1,5 +1,5 @@
 %% Writes all numerical input and output data to a single spreadsheet
-function [FileName] = AAOS_WriteModelEvaluation(Directory,Config,ModelOut)
+function [FileName] = AAOS_ModelEval_WriteNumericalOutput(Directory,Config,FileName,ModelOut)
 
 %% 0. Get data and define output directory & filename:
 % Get 2 output arrays from model output structure:
@@ -9,46 +9,7 @@ SimOut = ModelOut.SimulationOutput;
 % Get number of test variables except HI (doesnt influence the sheet no.):
 N_TestVar = min(2,numel(Config.TestVarIds));
 
-% Change to and, in case, create directory for AAOS output files:
-DirOutput = Directory.AAOS_Output;
-if ~exist(DirOutput, 'dir')
-    mkdir(DirOutput)
-end
 
-% Derive filename:
-% ... from current timestamp (to avoid output file conflicts):
-currentday_full = clock;
-currentday = strcat(string(currentday_full(:,1)),"-",string(currentday_full(:,2)),"-",string(currentday_full(:,3))...
-    ,"_",string(currentday_full(:,4)),"-",string(currentday_full(:,5)));
-FileName = strcat(currentday,"_");
-% ... season, analysis type:
-FileName = strcat(FileName,"S",Config.season,"_",Config.RUN_type,"_");
-if Config.CalcMean == 1
-    FileName = strcat(FileName,"MEAN_");
-end
-% ...test & target variable(s) and GoFs:
-% - Create string with all test variables:
-TestVarNamesShortArr = strings(2,1);
-TestVarNamesShortStr = "";
-for idx_TestVar = 1:2
-    [~,TestVarNameShort] = AAOS_SwitchTestVariable(idx_TestVar);
-    TestVarNamesShortArr(idx_TestVar,1) = TestVarNameShort;
-    TestVarNamesShortStr = strcat(TestVarNamesShortStr,"_",TestVarNameShort);
-end
-% - Create string with all calculated GoFs:
-GoF_NamesStr = "";
-GoF_NamesArr = strings(3,1);
-for idx = 1:length(Config.GoF)
-    GoF_NamesArr(idx) = Config.GoF(idx);
-    GoF_NamesStr = strcat(GoF_NamesStr,"_",GoF_NamesArr(idx));
-end
-% - Assign all elements to filename:
-if Config.RUN_type ~= "STQ"
-    FileName = strcat(FileName,"of",TestVarNamesShortStr,"_on_",Config.TargetVar.NameShort,"_via",GoF_NamesStr);
-end
-% Determine final filename & add extension:
-FileName = char(strcat(...
-    Directory.AAOS_Output,filesep,FileName,Config.filename_xtra,".xlsx"));
 
 
 %% A) Sheet: Parameter input data:
@@ -76,7 +37,7 @@ for idx_ParFile = 1:min(2,Config.SimRounds)
         Config.ParameterValues.(ParFileType)(:,4:end));
 
     % Write data to Excel file:
-    cd(DirOutput);
+    cd(Directory.AAOS_Output);
     writematrix(NumericValues,...
         char(FileName),'Sheet',SheetName,'Range','D2');
     writecell(ColumnTitlesCell,...
@@ -87,22 +48,33 @@ end
 
 %% B) Sheet: ModelEval
 % Set up sheet headers (32 columns / first 3 rows)
-% (1 version, valid for all 3 analysis DEF/ CAL/ VAL, and 1-3 target variables) 
+% (1 version, valid for all 3 analysis DEF/ CAL/ VAL, and 1-3 target variables)
 
+% Get names for GoF & tested variables
+%% (all, even when not tested -> CHANGE)
+GoF_Names = Config.GoF;
+
+TestVarNamesShort = strings(3);
+for idx_TestVar1 = 1:3
+    cd(Directory.BASE_PATH);
+    [~,TestVarNameShort] = AAOS_SwitchTestVariable(idx_TestVar1);
+    cd(Directory.AAOS_Output);
+    TestVarNamesShort(idx_TestVar1) = TestVarNameShort;
+end
 % Header (1. row):
 ColumnTitlesStr =...
     ["Output type:","|"+string(Config.TargetVar.NameFull),... % 1. row
     " dev.","from","OBS [%]","","--->",...
     "|"+string(Config.TargetVar.NameFull)," Abs."," val. ","[t/ha]",...
     "","","--->",...
-    "|GoF:",GoF_NamesArr(1),"","","","--->",...
-    "|GoF:",GoF_NamesArr(2),"","","","--->",...
-    "|GoF:",GoF_NamesArr(3),"","","","--->";...
-    "Test variable:","-",TestVarNamesShortArr(1),TestVarNamesShortArr(2),TestVarNamesShortArr(2),TestVarNamesShortArr(1),... % 2. row
-    "-","-","-",TestVarNamesShortArr(1),TestVarNamesShortArr(2),TestVarNamesShortArr(2),TestVarNamesShortArr(1),"-",...
-    TestVarNamesShortArr(1),TestVarNamesShortArr(1),TestVarNamesShortArr(1),TestVarNamesShortArr(2),TestVarNamesShortArr(2),TestVarNamesShortArr(2),...
-    TestVarNamesShortArr(1),TestVarNamesShortArr(1),TestVarNamesShortArr(1),TestVarNamesShortArr(2),TestVarNamesShortArr(2),TestVarNamesShortArr(2),...
-    TestVarNamesShortArr(1),TestVarNamesShortArr(1),TestVarNamesShortArr(1),TestVarNamesShortArr(2),TestVarNamesShortArr(2),TestVarNamesShortArr(2);...
+    "|GoF:",GoF_Names(1),"","","","--->",...
+    "|GoF:",GoF_Names(2),"","","","--->",...
+    "|GoF:",GoF_Names(3),"","","","--->";...
+    "Test variable:","-",TestVarNamesShort(1),TestVarNamesShort(2),TestVarNamesShort(2),TestVarNamesShort(1),... % 2. row
+    "-","-","-",TestVarNamesShort(1),TestVarNamesShort(2),TestVarNamesShort(2),TestVarNamesShort(1),"-",...
+    TestVarNamesShort(1),TestVarNamesShort(1),TestVarNamesShort(1),TestVarNamesShort(2),TestVarNamesShort(2),TestVarNamesShort(2),...
+    TestVarNamesShort(1),TestVarNamesShort(1),TestVarNamesShort(1),TestVarNamesShort(2),TestVarNamesShort(2),TestVarNamesShort(2),...
+    TestVarNamesShort(1),TestVarNamesShort(1),TestVarNamesShort(1),TestVarNamesShort(2),TestVarNamesShort(2),TestVarNamesShort(2);...
     "Plot v","HI","REC","CAL","REC","CAL","DEF",...% 3. row
     "OBS","HI","REC","CAL","REC","CAL","DEF",...
     "REC","CAL","DEF","CAL","REC","DEF",...
@@ -154,22 +126,22 @@ end
 SimOutHeader = cellstr(["Lot", "| Values", "-> ..."]);
 
 % Write Output for all used test variables:
-for idx_TestVar = 1:N_TestVar
+for idx_TestVar2 = 1:N_TestVar
     % Determine name of current variable:
     cd(Directory.BASE_PATH);
-    [TestVarNameFull,~] = AAOS_SwitchTestVariable(idx_TestVar);
-    cd(DirOutput);
-    
+    [TestVarNameFull,~] = AAOS_SwitchTestVariable(idx_TestVar2);
+    cd(Directory.AAOS_Output);
+
     % Write every defined sheet:
     for SimTypeIdx = 1:length(AnalysisNames)
         % Create sheet name from current test variable & model output type:
-        SheetName = char(strcat(TestVarNameFull,"_",AnalysisNames(idx_TestVar,SimTypeIdx)));
+        SheetName = char(strcat(TestVarNameFull,"_",AnalysisNames(idx_TestVar2,SimTypeIdx)));
         % Write header (1. row)
         writecell(SimOutHeader,...
             char(FileName),'Sheet',SheetName,'Range','A1');
         % Write numerical output (from 2. row), incl. lot index (1. column)
         % and values (from 2. column)
-        writematrix(SimOut(:,:,SimTypeIdx,idx_TestVar),...
+        writematrix(SimOut(:,:,SimTypeIdx,idx_TestVar2),...
             char(FileName),'Sheet',SheetName,'Range','A2');
     end
 end

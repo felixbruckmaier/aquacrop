@@ -18,7 +18,6 @@ N_Par = size(NumValues,1); % get number of parameters
 
 % Get the maximum allowed decimals of the parameter:
 DecimalsAll = -log10(table2array(NumValues(:,6)));
-Config.AllParameterDecimals = DecimalsAll;
 % Get the parameter value of every lot:
 ValuesAll = table2array(NumValues(:,8:end));
 % Get the unit for every lot:

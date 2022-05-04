@@ -1,6 +1,6 @@
 % Select plots to be analysed:
 % Options: x; [x y..];
-Config.SimulationLots = [3];
+Config.SimulationLots = [1];
 Config.CalibrationLots = Config.SimulationLots;
 % % Validation:
 % Config.ValidationLots = [];

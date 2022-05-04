@@ -56,7 +56,7 @@ elseif Filename == "Soil"
 elseif Filename == "SoilHydrology"
     SkipCell = 1;
     colWidth = 20;
-    varnames = {'thwp','thfc','ths','ksat','Penetrability'};
+    varnames = {'th_s','th_fc','th_wp','Ksat','Penetrability'};
 else
     fprintf(2,'Could not find template: ' + Filename + '\n\n');
 end
@@ -78,7 +78,7 @@ end
 % find the line in which the variable is defined
 VarIdx = find(ismember(varnames, VarName));
 if Filename ~= "CropRotation"
-VarIdx = VarIdx + 1 + SkipCell;
+    VarIdx = VarIdx + 1 + SkipCell;
 end
 
 
@@ -90,25 +90,23 @@ if Filename == "FileLocations"
     VarValue(VarValue=='\') = '/';
     VarValue = string(VarValue);
     FileContent(VarIdx) = VarValue;
-    
-    disp("");
 else
-%     if OmitTemplate == 0
-%         cd(Directory.AOS_Input + filesep + Config.season + filesep + "templates");
-%     elseif OmitTemplate == 1
-        cd(Directory.AOS_Input + filesep + Config.season);
-%     end
+    %     if OmitTemplate == 0
+    %         cd(Directory.AOS_Input + filesep + Config.season + filesep + "templates");
+    %     elseif OmitTemplate == 1
+    cd(Directory.AOS_Input + filesep + Config.season);
+    %     end
 
 
     if ismember(Filename,["CropRotation";"SoilHydrology";"IrrigationSchedule"])
         % replace all cells of the column with the same value (assumption: homogeneous soil)
         Data = readlines(File);
         Header = Data(1:2,:);
-        
+
         if Filename == "CropRotation"
             DataArr(1,:) = split(Data(3,:));
         else
-                    DataArr = table2array(readtable(File));
+            DataArr = table2array(readtable(File));
         end
         DataLines = size(DataArr,1);
 
@@ -168,16 +166,16 @@ end
 
 
 
-    % open & write the output file
-    
-    fileID = fopen(File, 'w');
-    if fileID == -1
-        fprintf(2,'AOS parameter file not found: ' + File);
-    end
+% open & write the output file
 
-    fprintf(fileID, "%s\n", FileContent);
-    fclose(fileID);
+fileID = fopen(File, 'w');
+if fileID == -1
+    fprintf(2,'AOS parameter file not found: ' + File);
+end
 
-    cd(Directory.BASE_PATH)
+fprintf(fileID, "%s\n", FileContent);
+fclose(fileID);
+
+cd(Directory.BASE_PATH)
 
 end

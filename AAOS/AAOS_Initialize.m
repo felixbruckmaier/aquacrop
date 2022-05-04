@@ -12,8 +12,14 @@ cd(Directory.BASE_PATH);
 Config = AAOS_LoadConfig();
 Directory.AAOS_Input = Directory.BASE_PATH + filesep + "AAOS_Input" + filesep + Config.season;
 Directory.AAOS_Output = Directory.BASE_PATH + filesep + "AAOS_Output" + filesep + Config.season;
+DirOutput = Directory.AAOS_Output;
+if ~exist(DirOutput, 'dir')
+    mkdir(DirOutput)
+end
 Directory.SAFE = Directory.BASE_PATH + filesep + "vendor" + filesep + "safe_R1.1";
 Directory.SAFE_Sampling = Directory.SAFE + filesep + "sampling";
+Directory.SAFE_Morris = Directory.SAFE + filesep + "EET";
+Directory.SAFE_Plotting = Directory.SAFE + filesep + "visualization";
 Directory.vendor = Directory.BASE_PATH + filesep + "vendor";
 Directory.AOS = Directory.vendor + filesep + "AOS";
 Directory.AOS_Input = Directory.AOS + filesep + "Input";
@@ -24,13 +30,13 @@ Directory.AOS_OutputSeason = Directory.AOS + filesep + "Output" + filesep + Conf
 % Adjust AOS in- and output directories defined in FileLocations.txt file:
 directories = ["Input";"Output"];
 for idx = 1:2
-directory = directories(idx);
-Filename = "FileLocations";
-% OmitTemplate = 0;
-VarName = idx;
-VarValue = Directory.("AOS_" + directory + "Season");
-AAOS_OverwriteVariableInAOSfile(Config, Directory, ...
-    Filename,VarName,VarValue);
+    directory = directories(idx);
+    Filename = "FileLocations";
+    % OmitTemplate = 0;
+    VarName = idx;
+    VarValue = Directory.("AOS_" + directory + "Season");
+    AAOS_OverwriteVariableInAOSfile(Config, Directory, ...
+        Filename,VarName,VarValue);
 end
 
 % Initialize AOS arrays:
@@ -64,11 +70,11 @@ Config.TargetVar = AAOS_ReadTargetVariableConfig(Config,Directory);
 % Config = AAOS_DetermineSimulationLots(Config);
 
 % Define arrays for output files and fill in lot-unspecific data:
-ModelOut = AAOS_StoreTestLotsAndObservations(Config);
+ModelOut = AAOS_ModelEval_StoreTestLotsAndObservations(Config);
 
 % Get harvest day for every simulation lot:
-Config.TargetVar.HarvestDay(1:size(Config.SimulationLots,1),1) =...
-    Config.TargetVar.Observations(Config.SimulationLots,1);
+Config.TargetVar.HarvestDay(1:size(Config.SimulationLots,2),1) =...
+    Config.TargetVar.Observations(Config.SimulationLots,2);
 
 % Read user-defined parameter values:
 Config = AAOS_ReadParameterInputFiles(Config,Directory);

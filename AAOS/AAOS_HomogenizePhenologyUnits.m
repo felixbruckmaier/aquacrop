@@ -6,6 +6,11 @@ function [CropParameters,TestValues,PhenoUnitAOS] =...
 
 global AOS_InitialiseStruct
 
+% Get available 
+cond_GDD = ~isnan(GDD_Values);
+cond_CD = ~isnan(CD_Values);
+cond_Pheno = or(cond_GDD,cond_CD);
+
 % Since the unit-defining parameter from this file ('CalendarType') changes
 % through the AOS initialization in case 'SwitchGDD' is activated, this
 % function checks the parameter 'Canopy10PctCD', which AOS only creates if
@@ -25,17 +30,13 @@ CropNames = string(fieldnames(CropParameters.InputValues));
 [~,Loc_CropInTest] = ismember(CropNames,TestNames);
 Loc_All = 1:size(Loc_TestInCrop,1);
 
-cond_GDD = ~isnan(GDD_Values);
-cond_CD = ~isnan(CD_Values);
-cond_Pheno = or(cond_GDD,cond_CD);
-
 % Loc_CD_InCrop = Loc_All(cond_CD); % parameters given in CD format
 % Loc_GDD_InCrop = Loc_All(cond_GDD); % parameters given in GDD format
 Loc_PhenoInCrop = Loc_All(cond_Pheno); % parameters given in either format
 
 % Update all phenology parameter values within the test parameter array:
- TestCropInputValues = cell2mat(struct2cell(CropParameters.InputValues));
- Loc_PhenoInTest = Loc_CropInTest(Loc_PhenoInCrop);
+TestCropInputValues = cell2mat(struct2cell(CropParameters.InputValues));
+Loc_PhenoInTest = Loc_CropInTest(Loc_PhenoInCrop);
 TestValues(Loc_PhenoInTest) = TestCropInputValues(Loc_PhenoInCrop);
 PhenoNames = CropNames(Loc_PhenoInCrop);
 

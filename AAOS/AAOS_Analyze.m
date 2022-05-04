@@ -1,9 +1,11 @@
 %% Run the chosen AAOS analysis for every simulation lot:
 % Until now: Only default analysis available.
-function [Config,ModelOut] = AAOS_Analyze(Directory,Config,ModelOut)
+function [Config,AnalysisOut] = AAOS_Analyze(Directory,Config,AnalysisOut)
 
 % Determine number of lots to simulate:
 LotNum = numel(Config.SimulationLots);
+
+
 
 % Run analysis on every included lot:
 for idx_SimLot = 1:LotNum
@@ -23,17 +25,18 @@ for idx_SimLot = 1:LotNum
     % Irrigation schedule
     AAOS_WriteIrrigationSchedule(Directory,Config);
 
-    % Initial Soil Water Content
-    Config = AAOS_WriteInitialSoilWaterContent(Config,Directory);
+
 
     %% Perform chosen analysis:
     switch Config.RUN_type
         case {"DEF","CAL"}
-            [Config,ModelOut] = AAOS_PerformModelEvaluation...
-                (Config,Directory,ModelOut);
-        case {"SA","UQ"}
-AAOS_PerformSensitivityAnalysis(Config, Directory);
-
+            [Config,AnalysisOut] = AAOS_PerformModelEvaluation...
+                (Config,Directory,AnalysisOut);
+        case {"EE","GLUE"}
+            %% temp. workaround -> move whole struct set-up to AAOS_Initialize
+            AnalysisOut = struct;
+            [Config, AnalysisOut] = AAOS_PerformSAFE(Config, Directory,AnalysisOut);
     end
+end
 
 end

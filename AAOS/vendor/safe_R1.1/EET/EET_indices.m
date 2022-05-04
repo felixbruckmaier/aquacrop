@@ -158,6 +158,11 @@ for i=1:r
     ki=k ;
 end
 
+%% Temporary adjustment:
+mi_temp       = mean(EE,'omitnan');
+EE = fillmissing(EE,'constant',mi_temp);
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Compute Mean and Standard deviation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -173,7 +178,7 @@ if Nboot>1
     for n=1:Nboot
         mi_all(n,:)= mean(EE(B(:,n),:));
         sigma_all(n,:)=std(EE(B(:,n),:));
-     end
+    end
 
     mi = mean(mi_all) ;
     mi_sd = std(mi_all)  ;
@@ -185,8 +190,8 @@ if Nboot>1
     sigma_lb = sort(sigma_all) ; sigma_lb = sigma_lb(max(1,round(Nboot*alfa/2)),:)  ;
     sigma_ub = sort(sigma_all) ; sigma_ub  = sigma_ub (round(Nboot*(1-alfa/2)),:)     ;
 
-    fprintf('\n\t mean(EE) std(EE)\n');
-    fprintf('X%d:\t %2.3f\t %2.3f\n',[ 1:M; mi; sigma ]);
+%     fprintf('\n\t mean(EE) std(EE)\n');
+%     fprintf('X%d:\t %2.3f\t %2.3f\n',[ 1:M; mi; sigma ]);
 else
     mi       = mean(EE);
     sigma    = std(EE);
@@ -198,6 +203,6 @@ else
     sigma_ub = [] ;
     mi_all   = [] ;
     sigma_all= [] ;
-    fprintf('\n\t mean(EE) std(EE)\n');
-    fprintf('X%d:\t %2.3f\t %2.3f\n',[ 1:M; mi; sigma ]);
+%     fprintf('\n\t mean(EE) std(EE)\n');
+%     fprintf('X%d:\t %2.3f\t %2.3f\n',[ 1:M; mi; sigma ]);
 end

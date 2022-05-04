@@ -1,44 +1,17 @@
-%% Reads & stores the test variable observations for the lot, if available
-% Available variables: Canopy Cover ('CC'), Soil Water Content ('SWC').
-% For test variables: Only create input files for lots with observations.
-function [ObsTestVar,ObsSWCdepths] = AAOS_ReadTestVariableObservations...
-    (Directory,Config,TestVarNameShort,idx_Observation)
+%% CHANGE: read all observations once, store them in a struct, and access
+% them when needed (-> adopt from GLUE)
+function [ObsTestVar] = AAOS_ReadTestVariableObservations(Directory, Config, TestVarNameShort)
 
-cd(Directory.AAOS_Input);
-ObsSWCdepths = nan;
+% Initial Soil Water Content
+Config = AAOS_WriteInitialSoilWaterContent(Config,Directory);
 
-% Retrieve filename:
-file = dir(fullfile(Directory.AAOS_Input,...
-    '*Obs*'+Config.season+'*'+TestVarNameShort+'*'+'_'+string(Config.LotName)+'.csv'));
-try
-    filename = file.name ;
-catch
-    filename = [];
+% Assign SWC depth to be tested (set to "1" when analyzing Canopy Cover):
+% -> column idx
+if TestVarNameShort == "SWC"
+    idx_Observation = Config.idx_SimDepthsObservations(Config.idx_TestSWC);
+elseif TestVarNameShort == "CC"
+    idx_Observation = 1;
 end
-
-% Read file, if available:
-if not(isempty(filename))
-    FileContentTab = readtable(filename,'ReadVariableNames',true);
-    FileContentArr = table2array(FileContentTab(1:end,1:end));
-    ObsTestVar(:,1) = FileContentArr(2:size(FileContentArr,1),1);
-    ObsTestVar(:,2) = round(FileContentArr(2:size(FileContentArr,1),1+idx_Observation),2);
-    [nanrows,~] = find(isnan(ObsTestVar));
-    ObsTestVar(nanrows,:) = [];
-    
-    if TestVarNameShort == "SWC"
-        % When fun applied in AAOS_InitialSoilWaterContent.m:
-        % 1. time: only determine number of observed SWC depths:
-        if idx_Observation == 0
-            ObsSWCdepths = size(FileContentArr,2)-1;
-            % 2. time: Get SWC depth corresponding to current SWC depth idx:
-        else
-            ObsSWCdepths = FileContentArr(1,1+idx_Observation);
-        end
-    end
-else
-    % If no observations available for this variable, set up an empty array
-    % and force the analysis to skip to next variable or lot, respectively:
-    ObsTestVar = {};
-end
-
-cd(Directory.BASE_PATH);
+% Read observed values for given test variable & depth:
+[ObsTestVar,~] = AAOS_ReadTestVariableObservationsFile(Directory,Config,...
+    TestVarNameShort,idx_Observation);

@@ -75,7 +75,6 @@ if rr(end)>r; error('maximum value in ''r'' must not exceed r=%g',r); end
 % Set optional arguments to their default values:
 Nboot=0;
 alfa =0.05;
-%alfa=0.1;
 
 if nargin>2
     if ~isempty(varargin{1})

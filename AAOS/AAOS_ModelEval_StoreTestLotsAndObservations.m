@@ -2,7 +2,7 @@
 % a) Model evaluation summary ("ModelEval") -> fill with test lot IDs and
 % observed target variable values
 % b) Overview of all simulated and observed values ("SimOut")
-function [ModelOut] = AAOS_StoreTestLotsAndObservations(Config,ModelOut)
+function [ModelOut] = AAOS_ModelEval_StoreTestLotsAndObservations(Config,ModelOut)
 
 global AOS_InitialiseStruct
 
@@ -15,8 +15,8 @@ global AOS_InitialiseStruct
 
 % Set up 'ModelEval' and fill in test lot IDs & target variable
 % observations:
-ModelEval = nan(size(Config.SimulationLots,1),12+6*length(Config.GoF));
-ModelEval(:,1) = Config.SimulationLots;
+ModelEval = nan(size(Config.SimulationLots,2),12+6*length(Config.GoF));
+ModelEval(:,1) = Config.SimulationLots';
 ModelEval(:,8) = Config.TargetVar.Observations(Config.SimulationLots,3);
 ModelOut.ModelEvaluation = ModelEval;
 

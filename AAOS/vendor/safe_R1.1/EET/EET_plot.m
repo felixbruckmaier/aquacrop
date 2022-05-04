@@ -35,7 +35,7 @@ function EET_plot(mi,sigma,varargin)
 fn = 'Helvetica' ; % font type of axes, labels, etc.
 %fn = 'Courier' ;
 fs = 12 ; % font size of axes, labels, etc. -- ORIG: 20
-ms = 14 ; % marker size
+ms = 8 ; % marker size
 
 % Options for the legend:
 sorting   = 1  ; % If 1, inputs will be displayed in the legend 
@@ -63,8 +63,8 @@ col=hsv(length(mi));   cc = 'k' ;
 
 
 % sigma(1,sigma(1,:)=='NaN') = [];
-nanCol = isnan(mi)
-zeroCol = mi==0
+nanCol = isnan(mi);
+zeroCol = mi==0;
 badCol = nanCol | zeroCol;
 mi(:,badCol) = [];
 sigma(:,badCol) = [];
@@ -92,8 +92,6 @@ mi_ub    = zeros(1,Msens) ;
 sigma_lb = zeros(1,Msens) ;
 sigma_ub = zeros(1,Msens) ;
 
-disp("labellength: "+length(labelinput));
-disp("M_title: "+M_title);
 % Recover and update optional arguments:
 if nargin > 2
     if ~isempty(varargin{1})
@@ -101,10 +99,8 @@ if nargin > 2
         plottitle = varargin{1}(1);
         labelinput = varargin{1}(2:end);
         labelinput(:,badCol) = [];
-        disp("labelinput:");
-        disp(labelinput);
         if ~iscell(labelinput); error('''labelinput'' must be a cell array'); end
-        if length(labelinput)~=Msens; error('''labelinput'' must have M=%d components',Msense); end
+%         if length(labelinput)~=Msens; error('''labelinput'' must have M=%d components'); end
         for i=1:Msens; if ~ischar(labelinput{i}); error('all components of ''labelinput'' must be string'); end; end
     end
 end
@@ -177,6 +173,84 @@ clrs=repmat(col,L,1);
 
 labelinput_new=cell(1,Msens);
 
+
+idx_all = 1:Msens;
+idx_outlier = [15,16];
+idx_outlier = idx_all;
+idx_delete = setdiff(idx_all,idx_outlier);
+n_delete = size(idx_delete,2);
+Msens  =Msens - n_delete;
+sigma(:,idx_delete) = [];
+sigma_lb(:,idx_delete) = [];
+sigma_ub(:,idx_delete) = [];
+mi(:,idx_delete) = [];
+mi_lb(:,idx_delete) = [];
+mi_ub(:,idx_delete) = [];
+nb_legend=nb_legend-n_delete;
+labelinput(idx_delete) = [];
+labelinput_new(idx_delete) = [];
+
+
+% % CREATE DISCONTINUOUS AXIS FOR OUTLIERS:
+% 
+% % % Find outlier in mean array:
+% Loc_mi_outlier = isoutlier(mi);
+% % Find outlier in sigma array:
+% Loc_sigma_outlier = isoutlier(sigma);
+% % Determine which/ if parameter value is an outlier for at least 1 axis:
+% Loc_outlier = max(Loc_mi_outlier, Loc_sigma_outlier);
+% 
+% if any(Loc_outlier == 1)
+% mi_outlier = mi(Loc_outlier);
+% mi_lb_outlier = mi(Loc_outlier);
+% mi_ub_outlier = mi(Loc_outlier);
+% mi_lb(Loc_outlier) = [];
+% mi_ub(Loc_outlier) = [];
+% mi(Loc_outlier) = [];
+% 
+% sigma_outlier = sigma(Loc_outlier);
+% sigma_lb_outlier = sigma(Loc_outlier);
+% sigma_ub_outlier = sigma(Loc_outlier);
+% sigma_lb(Loc_outlier) = [];
+% sigma_ub(Loc_outlier) = [];
+% sigma(Loc_outlier) = [];
+% Msens2 = size(mi_outlier,2);
+% Msens1 = Msens - Msens2;
+% 
+% if any(Loc_mi_outlier==1)
+%     mi_ub_max = max(mi_ub);
+%     t = tiledlayout(1,2,'TileSpacing','compact');
+%     x_tick = mi_ub_max/5;
+%     bgAx = axes(t,'XTick',[],'YTick',[],'Box','off');
+%     bgAx.Layout.TileSpan = [1 2];
+%     ax1 = axes(t);
+%     xline(ax1,mi_ub_max,':');
+%     ax1.Box = 'off';
+%     xlim(ax1,[0 mi_ub_max+1/mi_ub_max])
+%     xlabel(ax1, 'First Interval')
+% 
+%     % Create second plot
+%     mi_lb_min = min(mi_lb_outlier)
+%     mi_lb_max = max(mi_ub_outlier)
+%     ax2 = axes(t);
+%     ax2.Layout.Tile = 2;
+%     for i=1:Msens2
+%         plot(ax2,mi_outlier(i),sigma_outlier(i),'ok','MarkerFaceColor',clrs(i,:),'MarkerSize',ms,'MarkerEdgeColor','k')
+%     end
+%     xline(ax2,45,':');
+%     ax2.YAxis.Visible = 'off';
+%     ax2.Box = 'off';
+%     xlim(ax2,[mi_lb_min-5/mi_lb_min mi_lb_max+5/mi_lb_max])
+%     xlabel(ax2,'Second Interval')
+% 
+%     % Link the axes
+%     linkaxes([ax1 ax2], 'y')
+% else
+%     t1 = tiledlayout(1,1,'TileSpacing','compact');
+%     ax1 = axes(t1);
+% end
+
+
 if sorting
     [mi,Sidx]=sort(mi,'descend') ;
     mi_ub = mi_ub(Sidx) ;
@@ -194,6 +268,13 @@ end
 
 figure
 hold on
+
+figure
+hold on
+
+
+
+
 
 
 % First plot EEs mean & std as circles:

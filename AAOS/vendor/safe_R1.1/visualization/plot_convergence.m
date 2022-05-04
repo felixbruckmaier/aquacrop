@@ -36,7 +36,8 @@ function [] = plot_convergence(S,NN,varargin)
 % Options for the graphic:
 fn = 'Helvetica' ; % font type of axes, labels, etc.
 %fn = 'Courier' ;
-fs = 20 ; % font size of axes, labels, etc.
+fs = 12 ; % font size of axes, labels, etc. -- ORIG: 20
+% ms = 14 ; % marker size
 
 % Options for the legend:
 sorting   = 1  ; % If 1, inputs will be displayed in the legend 
@@ -44,15 +45,16 @@ sorting   = 1  ; % If 1, inputs will be displayed in the legend
 % (if 0 they will be displayed according to their original order)
 nb_legend = 5  ; % number of input names that will be displayed in the legend
 end_length=0.3; %adjust the space left for the legend
+end_length=0; %adjust the space left for the legend
 
 % Options for the colours:
 % You can produce a coloured plot or a black and white one
 % (printer-friendly). Furthermore, you can use matlab colourmaps or
 % repeat 5 'easy-to-distinguish' colours (see http://colorbrewer2.org/).
 % Option 1a - coloured using colorbrewer: uncomment the following line:
-col = [[228,26,28];[55,126,184];[77,175,74];[152,78,163];[255,127,0]]/256;
+% col = [[228,26,28];[55,126,184];[77,175,74];[152,78,163];[255,127,0]]/256;
 % Option 1b - coloured using matlab colormap: uncomment the following line:
-%col=hsv(size(S,2));
+col=hsv(size(S,2));
 % Option 1a - B&W using matlab colorbrewer: uncomment the following line:
 %col = [[37 37 37];[90 90 90];[150 150 150];[189 189 189];[217 217 217]]/256;
 % Option 1b - B&W using matlab colormap: uncomment the following line:
@@ -85,6 +87,7 @@ SExact = [];
 % Y_Label = 'sensitivity' ;
 X_Label = '';
 Y_Label = '' ;
+nb_legend = size(S,2);
 labelinput = cell(1,M); for i=1:M; labelinput{i}=['#' num2str(i)]; end
 
 % Recover and update optional arguments:
@@ -144,6 +147,69 @@ end
 L=ceil(M/A);
 clrs=repmat(col,L,1);
 
+%% OUTLIERS:
+% % Find for every parameter "mean mean value" over all repetitions: 
+% Smean = mean(S);
+% % % Find outlier in mean array:
+% Loc_outlier = isoutlier(Smean);
+% if any(Loc_outlier == 1)
+%     
+%     Outlier = S(Loc_outlier);
+%     Outlier_lb = S_lb(Loc_outlier);
+%     Outlier_ub = S_ub(Loc_outlier);
+% n_Outlier = size(Outlier,2);
+% M = M - n_Outlier;
+% 
+% S(Loc_outlier) = [];
+%     S_ub(Loc_outlier) = [];
+%     S_lb(Loc_outlier) = [];
+% 
+% S_ub_max = max(S_ub);
+% Outlier_lb_min = min(Outlier_lb); 
+% 
+% t = tiledlayout(1,2,'TileSpacing','compact');
+%     bgAx = axes(t,'XTick',[],'YTick',[],'Box','off');
+%     bgAx.Layout.TileSpan = [1 2];
+%     ax1 = axes(t);
+%     xline(ax1,S_ub_max,':');
+%     ax1.Box = 'off';
+%     xlim(ax1,[0 mS_ub+1/mS_ub])
+%     xlabel(ax1, 'First Interval')
+% 
+%     % Create second plot
+%     mi_lb_min = min(mi_lb_outlier)
+%     mi_lb_max = max(mi_ub_outlier)
+%     ax2 = axes(t);
+%     ax2.Layout.Tile = 2;
+%     for i=1:Msens2
+%         plot(ax2,mi_outlier(i),sigma_outlier(i),'ok','MarkerFaceColor',clrs(i,:),'MarkerSize',mS_ub,'MarkerEdgeColor','k')
+%     end
+%     xline(ax2,45,':');
+%     ax2.YAxis.Visible = 'off';
+%     ax2.Box = 'off';
+%     xlim(ax2,[mi_lb_min-5/mi_lb_min mi_lb_max+5/mi_lb_max])
+%     xlabel(ax2,'Second Interval')
+% 
+%     % Link the axes
+%     linkaxes([ax1 ax2], 'y')
+% else
+%     t1 = tiledlayout(1,1,'TileSpacing','compact');
+%     ax1 = axes(t1);
+% end
+
+idx_all = 1:M;
+idx_outlier = [15,16];
+idx_outlier = idx_all;
+idx_delete = setdiff(idx_all,idx_outlier);
+n_delete = size(idx_delete,2);
+M  =M - n_delete;
+S(:,idx_delete) = [];
+S_lb(:,idx_delete) = [];
+S_ub(:,idx_delete) = [];
+nb_legend=nb_legend-n_delete;
+labelinput(idx_delete) = [];
+
+
 % Set horizontal and vertical limits:
 if NN(1) - mean(diff(NN))>0; H1 = NN(1)- mean(diff(NN)) ; else ; H1=0 ; end
 H2 = NN(end)+end_length*(NN(end)-NN(1)) ;
@@ -158,6 +224,7 @@ if  any(any(S_ub))~=0
 else
     V2 = max( 1, max(max(S)) ) ;
 end
+
 
 
 labelinput_new=cell(1,M);
@@ -221,8 +288,12 @@ xlabel(X_Label,'FontName',fn,'FontSize',fs)
 ylabel(Y_Label,'FontName',fn,'FontSize',fs)
 
 
-legend(labelinput_new, 'Location','NorthWest')
-
+legend(labelinput_new, 'Location','eastoutside')
+xlabel('Number of model evaluations','FontSize',fs,'FontName',fn)
+ylabel('Mean of EEs','FontSize',fs,'FontName',fn)
+grid on
+set(gca,'FontSize',fs,'FontName',fn)
+box on
 
 
 %Tick labels for horizontal axis:

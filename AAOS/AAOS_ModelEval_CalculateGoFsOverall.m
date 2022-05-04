@@ -3,7 +3,7 @@
 %% Required adjustments:
 % - SimOut not used in "STQ" analysis
 % - SimRounds for other analysis
-function [ModelOut] = AAOS_CalculateGoFsOverall(Config,ModelOut)
+function [ModelOut] = AAOS_ModelEval_CalculateGoFsOverall(Config,ModelOut)
 
 % Get 2 output arrays from model output structure:
 ModelEval = ModelOut.ModelEvaluation;
@@ -54,7 +54,7 @@ for idx_Var = 1:N_Var
                 end
             end
             SimValues(isnan(SimValues)) = [];
-            Config = AAOS_CalculateGoF(Config,SimValues,ObsValues);
+            Config = AAOS_ModelEval_CalculateGoF(Config,SimValues,ObsValues);
             ModelEval(row_GoFtotal,...
                 [17-idx_SimRound+idx_Var^2,23-idx_SimRound+idx_Var^2,29-idx_SimRound+idx_Var^2]) =...
                 Config.SimOutTemp;
