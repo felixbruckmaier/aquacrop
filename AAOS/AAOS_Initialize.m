@@ -1,5 +1,5 @@
 %% Determines directories and loads config & input data
-function [Directory,Config,ModelOut] = AAOS_Initialize()
+function [Directory,Config,AnalysisOut] = AAOS_Initialize()
 
 % AOS variable
 global AOS_ClockStruct
@@ -16,16 +16,19 @@ DirOutput = Directory.AAOS_Output;
 if ~exist(DirOutput, 'dir')
     mkdir(DirOutput)
 end
-Directory.SAFE = Directory.BASE_PATH + filesep + "vendor" + filesep + "safe_R1.1";
-Directory.SAFE_Sampling = Directory.SAFE + filesep + "sampling";
-Directory.SAFE_Morris = Directory.SAFE + filesep + "EET";
-Directory.SAFE_Plotting = Directory.SAFE + filesep + "visualization";
 Directory.vendor = Directory.BASE_PATH + filesep + "vendor";
 Directory.AOS = Directory.vendor + filesep + "AOS";
 Directory.AOS_Input = Directory.AOS + filesep + "Input";
 Directory.AOS_InputSeason = Directory.AOS + filesep + "Input" + filesep + Config.season;
 Directory.AOS_Output = Directory.AOS + filesep + "Output";
 Directory.AOS_OutputSeason = Directory.AOS + filesep + "Output" + filesep + Config.season;
+Directory.SAFE = Directory.BASE_PATH + filesep + "vendor" + filesep + "safe_R1.1";
+Directory.SAFE_Sampling = Directory.SAFE + filesep + "sampling";
+Directory.SAFE_util = Directory.SAFE + filesep + "util";
+Directory.SAFE_Morris = Directory.SAFE + filesep + "EET";
+Directory.SAFE_GLUE = Directory.SAFE + filesep + "GLUE";
+Directory.SAFE_Plotting = Directory.SAFE + filesep + "visualization";
+
 
 % Adjust AOS in- and output directories defined in FileLocations.txt file:
 directories = ["Input";"Output"];
@@ -69,8 +72,12 @@ Config.TargetVar = AAOS_ReadTargetVariableConfig(Config,Directory);
 % % Read lots to be included in the simulation:
 % Config = AAOS_DetermineSimulationLots(Config);
 
-% Define arrays for output files and fill in lot-unspecific data:
-ModelOut = AAOS_ModelEval_StoreTestLotsAndObservations(Config);
+if ismember(Config.RUN_type,["DEF","CAL"])
+    % Define arrays for output files and fill in lot-unspecific data:
+    AnalysisOut = AAOS_ModelEval_StoreTestLotsAndObservations(Config);
+else
+    AnalysisOut.TargetVar = Config.TargetVar;
+end
 
 % Get harvest day for every simulation lot:
 Config.TargetVar.HarvestDay(1:size(Config.SimulationLots,2),1) =...

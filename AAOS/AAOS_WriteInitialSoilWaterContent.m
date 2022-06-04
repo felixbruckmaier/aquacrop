@@ -27,33 +27,38 @@ else
             ObsSWCvalues(idx_SWCdepth) = ObsSWCvalue(row_FirstSimDay,2);
         end
     end
+end
 
-    %% Determine user-defined substitutes for missing SWC values:
-    SWC_substitute = Config.SWC_substitute;
-    if ~isnumeric(SWC_substitute) % substitute with a hydrological parameter
-        % Determine the value of the parameter for the current lot:
-        idx_SubstHydrPar = ismember(Config.AllParameterNames,char(SWC_substitute));
-        AllValues = Config.ParameterValues.(Config.ParFileType);
-        %% CHANGE: ONLY WORKS IF a) SHP ARE PROVIDED IN AAOS FILE, AND B)
-        % IF LOTS PROVIDE INPUT VALUES (~= SA/ UQ)!
-        SWC_substitute = table2array(AllValues(idx_SubstHydrPar==1,7+Config.LotName));
+%% Determine user-defined substitutes for missing SWC values:
+SWC_substitutes = Config.SWC_substitute;
+if ~isnumeric(Config.SWC_substitute) % substitute with a hydrological parameter
+    % Determine the value of the parameter for the current lot:
+    for idx_Subst = 1:size(SWC_substitutes,2)
+        idx_ParNames = ismember(Config.AllParameterNames,char(Config.SWC_substitute(idx_Subst)));
+        SWC_substitutes(idx_Subst) = Config.AllParameterValues(idx_ParNames);
     end
-    % Determine which of the simulated depths show SWC observations:
-    [ObservedSimDepths,Config.idx_SimDepthsObservations] = ismember(Config.SimulatedSWCdepths,ObsSWCdepths);
-    %% Substitute 1/2: depths written in the input file missing observations:
-    ObsSWCvalues(isnan(ObsSWCvalues)) = SWC_substitute;
 end
 
 
+% Determine which of the simulated depths show SWC observations:
+[ObservedSimDepths,Config.idx_SimDepthsObservations] = ismember(Config.SimulatedSWCdepths,ObsSWCdepths);
 
-
-%% Provide every simulated depth with a SWC value, either observed or substituted:
-% Set up initial SWC array to be used in the simulation:
-IniSWC(1,:) = Config.SimulatedSWCdepths; % depths [m]
-% Assign observed values to all observed depths...:
+%% Set up initial SWC array to be used in the simulation:
+% Determine simulation depths [m]:
+IniSWC(1,:) = Config.SimulatedSWCdepths;
+% Assign every available SWC observation to respective simulation depth:
 IniSWC(2,ObservedSimDepths==1) = ObsSWCvalues;
-% ... and substitute the others (2/2):
-IniSWC(2,ObservedSimDepths==0) = SWC_substitute;
+IniSWC(2,ObservedSimDepths==0) = nan;
+% Find all missing observations (either bc 1. simulation day or entire depth
+% is missing):
+Loc_MissingObs = isnan(IniSWC);
+Ids_AllDepths = 1:size(IniSWC,2);
+Ids_MissingObs = Ids_AllDepths(Loc_MissingObs(2,:)==1);
+
+%% Substitute missing observations:
+IniSWC(2,Ids_MissingObs) = SWC_substitutes(Ids_MissingObs);
+
+
 
 %% Write AOS input file including every simulated depth & SWC value:
 TestParAOSFile(1:5) = "InitialWaterContent";

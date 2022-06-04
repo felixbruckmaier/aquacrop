@@ -1,5 +1,5 @@
 % Choose season - "2018" or "2019":
-Config.season = "2019";
+Config.season = "2018";
 
 % Add additional text to output filename (-> put at the end):
 Config.filename_xtra = "";
@@ -21,9 +21,14 @@ Config.WriteFig = "Y";
 % - "CAL/VAL/STQ/MEAN" = Calculating mean values for all plots (include in
 % respective analysis!)
 Config.RUN_type = "GLUE";
+Config.thresh_TargetVar = 15;
+Config.thresh_TestVar = 15;
 
-% Define number of sample points 'r' for Morris Method:
-Config.r = 120;
+% Define number of sampling points 'r' for LHS:
+Config.r_target = 530;
+Config.r = Config.r_target * 18;
+Config.CreateNewSamples = 0;
+Config.TargetVarEE = "Yield"; % Yield or Biomass
 
 Config.SampStrategy = 'lhs' ; % Latin Hypercube                                       
 Config.DesignType = 'radial'; % 'trajectory'; %                                                   

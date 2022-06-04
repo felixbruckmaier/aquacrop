@@ -5,13 +5,13 @@ function [ObsTestVar] = AAOS_ReadTestVariableObservations(Directory, Config, Tes
 % Initial Soil Water Content
 Config = AAOS_WriteInitialSoilWaterContent(Config,Directory);
 
-% Assign SWC depth to be tested (set to "1" when analyzing Canopy Cover):
-% -> column idx
-if TestVarNameShort == "SWC"
-    idx_Observation = Config.idx_SimDepthsObservations(Config.idx_TestSWC);
-elseif TestVarNameShort == "CC"
-    idx_Observation = 1;
-end
+idx_Observation = Config.SWC_depth;
+
 % Read observed values for given test variable & depth:
 [ObsTestVar,~] = AAOS_ReadTestVariableObservationsFile(Directory,Config,...
     TestVarNameShort,idx_Observation);
+
+
+% if TestVarNameShort == "SWC"
+%     ObsTestVar(1,:) = [];
+% end

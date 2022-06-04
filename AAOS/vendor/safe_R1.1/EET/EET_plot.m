@@ -9,9 +9,9 @@ function EET_plot(mi,sigma,varargin)
 %
 % Usage:
 %
-% EET_plot(mi,sigma)                               
+% EET_plot(mi,sigma)
 % EET_plot(mi,sigma,labelinput)
-% EET_plot(mi,sigma,labelinput,mi_lb,mi_ub,sigma_lb,sigma_ub)    
+% EET_plot(mi,sigma,labelinput,mi_lb,mi_ub,sigma_lb,sigma_ub)
 %
 %         mi = mean of the elementary effects               - vector (1,M)
 %      sigma = standard deviation of the elementary effects - vector (1,M)
@@ -21,24 +21,24 @@ function EET_plot(mi,sigma,varargin)
 %   sigma_lb = lower bound of 'sigma'                       - vector (1,M)
 %   sigma_ub = upper bound of 'sigma'                       - vector (1,M)
 
-% This function is part of the SAFE Toolbox by F. Pianosi, F. Sarrazin 
-% and T. Wagener at Bristol University (2015). 
-% SAFE is provided without any warranty and for non-commercial use only. 
-% For more details, see the Licence file included in the root directory 
+% This function is part of the SAFE Toolbox by F. Pianosi, F. Sarrazin
+% and T. Wagener at Bristol University (2015).
+% SAFE is provided without any warranty and for non-commercial use only.
+% For more details, see the Licence file included in the root directory
 % of this distribution.
-% For any comment and feedback, or to discuss a Licence agreement for 
+% For any comment and feedback, or to discuss a Licence agreement for
 % commercial use, please contact: francesca.pianosi@bristol.ac.uk
-% For details on how to cite SAFE in your publication, please see: 
+% For details on how to cite SAFE in your publication, please see:
 % bristol.ac.uk/cabot/resources/safe-toolbox/
 
 % Options for the graphic:
 fn = 'Helvetica' ; % font type of axes, labels, etc.
 %fn = 'Courier' ;
-fs = 12 ; % font size of axes, labels, etc. -- ORIG: 20
-ms = 8 ; % marker size
+fs = 11 ; % font size of axes, labels, etc. -- ORIG: 20
+ms = 10 ; % marker size
 
 % Options for the legend:
-sorting   = 1  ; % If 1, inputs will be displayed in the legend 
+sorting   = 1  ; % If 1, inputs will be displayed in the legend
 % according to their influence, i.e. from most sensitive to least sensitive
 % (if 0 they will be displayed according to their original order)
 
@@ -49,12 +49,17 @@ sorting   = 1  ; % If 1, inputs will be displayed in the legend
 % Option 1a - coloured using colorbrewer: uncomment the following line:
 % col = [[228,26,28];[55,126,184];[77,175,74];[152,78,163];[255,127,0]]/256;  cc = 'k' ;
 % Option 1b - coloured using matlab colormap: uncomment the following line:
-col=hsv(length(mi));   cc = 'k' ;
+% col=hsv(length(mi));   cc = 'k' ;
 % Option 1a - B&W using matlab colorbrewer: uncomment the following line:
 %col = [[37 37 37];[90 90 90];[150 150 150];[189 189 189];[217 217 217]]/256; cc = 'w' ;
 % Option 1b - B&W using matlab colormap: uncomment the following line:
-%col=gray(length(mi)); cc = 'w' ; 
+%col=gray(length(mi)); cc = 'w' ;
 
+col = [[0 0.4470 0.7410]; [0.8500 0.3250 0.0980];...
+    [0.9290 0.6940 0.1250]; [0.4940 0.1840 0.5560];...
+    [0.4660 0.6740 0.1880]; [0.3010 0.7450 0.9330];...
+    [0.6350 0.0780 0.1840]];  cc = 'k' ; % blue/orange/yellow/purple/green/cyan/red; see...
+% https://www.mathworks.com/help/matlab/creating_plots/specify-plot-colors.html
 
 %%%%%%%%%%%%%%
 % Check inputs
@@ -83,12 +88,12 @@ nb_legend = Msens  ; % number of input names that will be displayed in the legen
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Recover and check optional inputs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- 
+
 % Set optional arguments to their default values:
 M_title = Msens + 1;
 labelinput = cell(1,M_title); for i=1:M_title; labelinput{i}=['X' num2str(i)]; end
-mi_lb    = zeros(1,Msens) ; 
-mi_ub    = zeros(1,Msens) ; 
+mi_lb    = zeros(1,Msens) ;
+mi_ub    = zeros(1,Msens) ;
 sigma_lb = zeros(1,Msens) ;
 sigma_ub = zeros(1,Msens) ;
 
@@ -100,7 +105,7 @@ if nargin > 2
         labelinput = varargin{1}(2:end);
         labelinput(:,badCol) = [];
         if ~iscell(labelinput); error('''labelinput'' must be a cell array'); end
-%         if length(labelinput)~=Msens; error('''labelinput'' must have M=%d components'); end
+        %         if length(labelinput)~=Msens; error('''labelinput'' must have M=%d components'); end
         for i=1:Msens; if ~ischar(labelinput{i}); error('all components of ''labelinput'' must be string'); end; end
     end
 end
@@ -121,7 +126,7 @@ if nargin > 4
     if ~isempty(varargin{3})
         mi_ub = varargin{3} ;
         if ~isnumeric(mi_ub); error('''mi_ub'' must be a vector of size (1,M)'); end
-                nanCol = isnan(mi_ub);
+        nanCol = isnan(mi_ub);
         zeroCol = mi_ub==0;
         badCol = nanCol | zeroCol;
         mi_ub(:,badCol) = [];
@@ -192,14 +197,14 @@ labelinput_new(idx_delete) = [];
 
 
 % % CREATE DISCONTINUOUS AXIS FOR OUTLIERS:
-% 
+%
 % % % Find outlier in mean array:
 % Loc_mi_outlier = isoutlier(mi);
 % % Find outlier in sigma array:
 % Loc_sigma_outlier = isoutlier(sigma);
 % % Determine which/ if parameter value is an outlier for at least 1 axis:
 % Loc_outlier = max(Loc_mi_outlier, Loc_sigma_outlier);
-% 
+%
 % if any(Loc_outlier == 1)
 % mi_outlier = mi(Loc_outlier);
 % mi_lb_outlier = mi(Loc_outlier);
@@ -207,7 +212,7 @@ labelinput_new(idx_delete) = [];
 % mi_lb(Loc_outlier) = [];
 % mi_ub(Loc_outlier) = [];
 % mi(Loc_outlier) = [];
-% 
+%
 % sigma_outlier = sigma(Loc_outlier);
 % sigma_lb_outlier = sigma(Loc_outlier);
 % sigma_ub_outlier = sigma(Loc_outlier);
@@ -216,7 +221,7 @@ labelinput_new(idx_delete) = [];
 % sigma(Loc_outlier) = [];
 % Msens2 = size(mi_outlier,2);
 % Msens1 = Msens - Msens2;
-% 
+%
 % if any(Loc_mi_outlier==1)
 %     mi_ub_max = max(mi_ub);
 %     t = tiledlayout(1,2,'TileSpacing','compact');
@@ -228,7 +233,7 @@ labelinput_new(idx_delete) = [];
 %     ax1.Box = 'off';
 %     xlim(ax1,[0 mi_ub_max+1/mi_ub_max])
 %     xlabel(ax1, 'First Interval')
-% 
+%
 %     % Create second plot
 %     mi_lb_min = min(mi_lb_outlier)
 %     mi_lb_max = max(mi_ub_outlier)
@@ -242,7 +247,7 @@ labelinput_new(idx_delete) = [];
 %     ax2.Box = 'off';
 %     xlim(ax2,[mi_lb_min-5/mi_lb_min mi_lb_max+5/mi_lb_max])
 %     xlabel(ax2,'Second Interval')
-% 
+%
 %     % Link the axes
 %     linkaxes([ax1 ax2], 'y')
 % else
@@ -266,44 +271,131 @@ if nb_legend<Msens
     labelinput_new{end}=[labelinput_new{end},'...'];
 end
 
-figure
-hold on
-
-figure
-hold on
 
 
+MarkerShapeAvail = ['o';'s';'d';'^';'v';'>';'<'];
 
+MarkerShape = MarkerShapeAvail;
 
-
-
-% First plot EEs mean & std as circles:
-for i=1:Msens    
-    plot(mi(i),sigma(i),'ok','MarkerFaceColor',clrs(i,:),'MarkerSize',ms,'MarkerEdgeColor','k')
+while size(MarkerShape,1) < Msens
+    MarkerShapeAvail = MarkerShapeAvail([2:end 1]);
+    MarkerShape(end+1 : end+size(MarkerShapeAvail,1)) = MarkerShapeAvail;
 end
 
-title(plottitle);
+% First plot EEs mean & std as circles:
+for i=1:Msens
+    loglog(sigma(i),mi(i),'k','Marker',MarkerShape(i), 'MarkerFaceColor',clrs(i,:),'MarkerSize',ms,'MarkerEdgeColor','k')
+    hold on;
+end
 
+title(plottitle,'FontSize',14);
+subtitle('N (model evaluations) = 10070 | n (Bootstrapping) = 1000 | \alpha = 0.05')
 
 %plot first the larger confidence areas
-size_bounds=mi_ub-mi_lb; 
+size_bounds=mi_ub-mi_lb;
 [tmp,idx]=sort(size_bounds,'descend');
 
-for i=1:Msens % add rectangular shade:    
-    h = fill([mi_lb(idx(i)),mi_lb(idx(i)),mi_ub(idx(i)),mi_ub(idx(i))],[sigma_lb(idx(i)),sigma_ub(idx(i)),sigma_ub(idx(i)),sigma_lb(idx(i))],clrs(idx(i),:));
+for i=1:Msens % add rectangular shade:
+    h = fill([sigma_lb(idx(i)),sigma_ub(idx(i)),sigma_ub(idx(i)),sigma_lb(idx(i))],...
+        [mi_lb(idx(i)),mi_lb(idx(i)),mi_ub(idx(i)),mi_ub(idx(i))],clrs(idx(i),:));
 end
 
 % Plot again the circles (in case some have been overriden by the rectangles
 % representing confidence bounds)
-for i=1:Msens    
-    plot(mi(i),sigma(i),'ok','MarkerFaceColor',clrs(i,:),'MarkerSize',ms,'MarkerEdgeColor',cc)
+for i=1:Msens
+    loglog(sigma(i),mi(i),'k','Marker',MarkerShape(i),'MarkerFaceColor',clrs(i,:),'MarkerSize',ms,'MarkerEdgeColor',cc)
+    hold on;
 end
+y_threshold = yline(0.25,'--r',{'Threshold = 0.25 t/ha'},'LineWidth',1.5,...
+    'HandleVisibility','off');
+y_threshold.LabelHorizontalAlignment = 'right';
 
 % Create legend:
 
+
 legend(labelinput_new, 'Location','eastoutside')
-xlabel('Mean of EEs','FontSize',fs,'FontName',fn)
-ylabel('Standard deviation of EEs','FontSize',fs,'FontName',fn)
-grid on
+
 set(gca,'FontSize',fs,'FontName',fn)
+xlabel('\sigma [t/ha]','FontSize',fs,'FontName',fn);
+% xlimit = get(gca, 'XLim');
+ylimit = get(gca, 'YLim');
+ylim([10^-3 10^2]);
+ylabel('\mu [t/ha]','FontSize',fs,'FontName',fn);
+% labelv.Position(1) = labelv.Position(1)-0.1 * labelv.Position(1);
+% labelh.Position(2) = -0.05 * ylimit(2);
+grid on
+
 box on
+
+
+%% ADJUSTMENT:
+%
+
+% OUTLIERS
+auto = 1;
+if auto == 0
+if auto == 1
+    mi_all = [mi'; mi_lb'; mi_ub'];
+    idx_Outlier = isoutlier(mi_all);
+
+    Outliers = mi_all(idx_Outlier);
+    if ~isempty(Outliers)
+
+
+
+        Outliers = sort(Outliers);
+        Diff = diff(Outliers);
+        [BreakWidth, Loc_BreakLowEnd] = max(Diff);
+        BreakLowEnd = Outliers(Loc_BreakLowEnd);
+
+        startpoint = 1.15*(BreakLowEnd);
+        endpoint = 0.95*(BreakLowEnd + BreakWidth);
+        splitYLim = [startpoint endpoint];
+
+        YTick_end = ceil(max(Outliers));
+        YTick = YTick_end /10;
+
+        % YTick1_end = floor(startpoint-0.1);
+        YTick1_end = startpoint-0.5;
+        if YTick1_end < YTick
+            YTick1 = min(startpoint-0.1, YTick1_end * 0.5);
+        else
+            YTick1 = YTick;
+        end
+        %     YTick2_start = ceil(endpoint+0.1);
+        YTick2_start = endpoint+0.5;
+        YTick2 = YTick;
+        if (YTick2_start + YTick) > YTick_end | YTick2 == 0
+            YTick2 = (YTick_end - YTick2_start) * 0.5;
+        end
+
+
+        YTick1 = round(YTick1,1);
+        YTick1_end = round(YTick1_end,1);
+        YTick2 = round(YTick2,1);
+        YTick2_start = round(YTick2_start,1);
+        YTick_end = round(YTick_end,1);
+
+
+    else
+        splitYLim = [3.1 5.9];
+        YTick1 = 0.75;
+        YTick2_start = 6;
+
+        YTick1_end = 4*YTick1;
+        YTick_end = 12;
+    end
+
+    yticks([0:YTick1:YTick1_end ,...
+        YTick2_start:YTick2:YTick_end]);
+    %     for i = 1 :length(YTick)
+    %         t(1)=text(-0.002,YTick(i),num2str(YTick(i)),'FontSize',5,'FontName','Arial','Interpreter','tex','VerticalAlignment','middle','HorizontalAlignment','right');
+    %         hold on;
+    %         plot([0,0.002],[YTick(i),YTick(i)],'k');
+    %     end
+
+    breakyaxis(splitYLim)
+end
+end
+
+%% END ADJUSTMENT

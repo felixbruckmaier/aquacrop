@@ -3,10 +3,10 @@ function [] = plot_convergence(S,NN,varargin)
 % Plots sequence of one or more indices estimated using samples
 % of different sizes
 %
-% Usage: 
+% Usage:
 % plot_convergence(S,NN)
-% plot_convergence(S,NN,S_lb,Sd_ub) 
-% plot_convergence(S,NN,S_lb,Sd_ub,SExact) 
+% plot_convergence(S,NN,S_lb,Sd_ub)
+% plot_convergence(S,NN,S_lb,Sd_ub,SExact)
 % plot_convergence(S,NN,S_lb,Sd_ub,SExact,X_Label,Y_Label,labelinput)
 %
 % Inputs:
@@ -21,26 +21,26 @@ function [] = plot_convergence(S,NN,varargin)
 %     Y_Label = y-axis label                                 - string
 %  labelinput = legend labels                            - cell array (1,M)
 %
-% (leave empty any optional argument that you don't want to specify) 
+% (leave empty any optional argument that you don't want to specify)
 
-% This function is part of the SAFE Toolbox by F. Pianosi, F. Sarrazin 
-% and T. Wagener at Bristol University (2015). 
-% SAFE is provided without any warranty and for non-commercial use only. 
-% For more details, see the Licence file included in the root directory 
+% This function is part of the SAFE Toolbox by F. Pianosi, F. Sarrazin
+% and T. Wagener at Bristol University (2015).
+% SAFE is provided without any warranty and for non-commercial use only.
+% For more details, see the Licence file included in the root directory
 % of this distribution.
-% For any comment and feedback, or to discuss a Licence agreement for 
+% For any comment and feedback, or to discuss a Licence agreement for
 % commercial use, please contact: francesca.pianosi@bristol.ac.uk
-% For details on how to cite SAFE in your publication, please see: 
+% For details on how to cite SAFE in your publication, please see:
 % bristol.ac.uk/cabot/resources/safe-toolbox/
 
 % Options for the graphic:
 fn = 'Helvetica' ; % font type of axes, labels, etc.
 %fn = 'Courier' ;
-fs = 12 ; % font size of axes, labels, etc. -- ORIG: 20
+fs = 11 ; % font size of axes, labels, etc. -- ORIG: 20
 % ms = 14 ; % marker size
 
 % Options for the legend:
-sorting   = 1  ; % If 1, inputs will be displayed in the legend 
+sorting   = 1  ; % If 1, inputs will be displayed in the legend
 % according to their influence, i.e. from most sensitive to least sensitive
 % (if 0 they will be displayed according to their original order)
 nb_legend = 5  ; % number of input names that will be displayed in the legend
@@ -54,11 +54,13 @@ end_length=0; %adjust the space left for the legend
 % Option 1a - coloured using colorbrewer: uncomment the following line:
 % col = [[228,26,28];[55,126,184];[77,175,74];[152,78,163];[255,127,0]]/256;
 % Option 1b - coloured using matlab colormap: uncomment the following line:
-col=hsv(size(S,2));
+% col=hsv(size(S,2));
 % Option 1a - B&W using matlab colorbrewer: uncomment the following line:
 %col = [[37 37 37];[90 90 90];[150 150 150];[189 189 189];[217 217 217]]/256;
 % Option 1b - B&W using matlab colormap: uncomment the following line:
-%col=gray(size(S,2)); 
+%col=gray(size(S,2));
+
+
 
 %%%%%%%%%%%%%%
 % Check inputs
@@ -74,6 +76,28 @@ if sum(abs(NN-round(NN))); error('all elements of ''NN'' must be integer numbers
 if any(NN<=0); error('all elements in ''NN'' must positive'); end
 if any(diff(NN)<=0); error('elements in ''NN'' must be sorted in ascending order'); end
 if R~=Ri; error('number of columns in ''S'' must be equal to the number of elements in ''NN'''); end
+
+
+if M > 12
+
+    col = [[0 0.4470 0.7410]; [0.8500 0.3250 0.0980];...
+    [0.9290 0.6940 0.1250]; [0.4940 0.1840 0.5560];...
+    [0.4660 0.6740 0.1880]; [0.3010 0.7450 0.9330];...
+    [0.6350 0.0780 0.1840]]; % blue/orange/yellow/purple/green/cyan/red; see...
+% https://www.mathworks.com/help/matlab/creating_plots/specify-plot-colors.html
+MarkerShapeAvail = ['o';'s';'d';'^';'v';'>';'<'];
+
+else
+    
+col = [[0.4940 0.1840 0.5560];...
+    [0.4660 0.6740 0.1880]; [0.3010 0.7450 0.9330];...
+    [0.6350 0.0780 0.1840];...
+    [0 0.4470 0.7410]; [0.8500 0.3250 0.0980];...
+    [0.9290 0.6940 0.1250]]; 
+MarkerShapeAvail = ['^';'v';'>';'<';'o';'s';'d'];
+
+
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Recover and check optional inputs
@@ -101,7 +125,7 @@ if nargin > 2
     end
 end
 if nargin > 3
-     if ~isempty(varargin{2})
+    if ~isempty(varargin{2})
         S_ub = varargin{2} ;
         if ~isnumeric(S_ub); error('''S_ub'' must be a vector of size (1,M)'); end
         [n,m] = size(S_ub) ;
@@ -147,71 +171,9 @@ end
 L=ceil(M/A);
 clrs=repmat(col,L,1);
 
-%% OUTLIERS:
-% % Find for every parameter "mean mean value" over all repetitions: 
-% Smean = mean(S);
-% % % Find outlier in mean array:
-% Loc_outlier = isoutlier(Smean);
-% if any(Loc_outlier == 1)
-%     
-%     Outlier = S(Loc_outlier);
-%     Outlier_lb = S_lb(Loc_outlier);
-%     Outlier_ub = S_ub(Loc_outlier);
-% n_Outlier = size(Outlier,2);
-% M = M - n_Outlier;
-% 
-% S(Loc_outlier) = [];
-%     S_ub(Loc_outlier) = [];
-%     S_lb(Loc_outlier) = [];
-% 
-% S_ub_max = max(S_ub);
-% Outlier_lb_min = min(Outlier_lb); 
-% 
-% t = tiledlayout(1,2,'TileSpacing','compact');
-%     bgAx = axes(t,'XTick',[],'YTick',[],'Box','off');
-%     bgAx.Layout.TileSpan = [1 2];
-%     ax1 = axes(t);
-%     xline(ax1,S_ub_max,':');
-%     ax1.Box = 'off';
-%     xlim(ax1,[0 mS_ub+1/mS_ub])
-%     xlabel(ax1, 'First Interval')
-% 
-%     % Create second plot
-%     mi_lb_min = min(mi_lb_outlier)
-%     mi_lb_max = max(mi_ub_outlier)
-%     ax2 = axes(t);
-%     ax2.Layout.Tile = 2;
-%     for i=1:Msens2
-%         plot(ax2,mi_outlier(i),sigma_outlier(i),'ok','MarkerFaceColor',clrs(i,:),'MarkerSize',mS_ub,'MarkerEdgeColor','k')
-%     end
-%     xline(ax2,45,':');
-%     ax2.YAxis.Visible = 'off';
-%     ax2.Box = 'off';
-%     xlim(ax2,[mi_lb_min-5/mi_lb_min mi_lb_max+5/mi_lb_max])
-%     xlabel(ax2,'Second Interval')
-% 
-%     % Link the axes
-%     linkaxes([ax1 ax2], 'y')
-% else
-%     t1 = tiledlayout(1,1,'TileSpacing','compact');
-%     ax1 = axes(t1);
-% end
-
-idx_all = 1:M;
-idx_outlier = [15,16];
-idx_outlier = idx_all;
-idx_delete = setdiff(idx_all,idx_outlier);
-n_delete = size(idx_delete,2);
-M  =M - n_delete;
-S(:,idx_delete) = [];
-S_lb(:,idx_delete) = [];
-S_ub(:,idx_delete) = [];
-nb_legend=nb_legend-n_delete;
-labelinput(idx_delete) = [];
-
 
 % Set horizontal and vertical limits:
-if NN(1) - mean(diff(NN))>0; H1 = NN(1)- mean(diff(NN)) ; else ; H1=0 ; end
+if NN(1) - mean(diff(NN))>0; H1 = NN(1)- mean(diff(NN)); else ; H1=0 ; end
 H2 = NN(end)+end_length*(NN(end)-NN(1)) ;
 
 if  any(any(S_lb))~=0
@@ -226,6 +188,13 @@ else
 end
 
 
+if M > 12
+    V1 = 10^(-3);
+    V2 = 10^2;
+else
+        V1 = 10^(-1);
+    V2 = 10^0;
+end
 
 labelinput_new=cell(1,M);
 
@@ -236,7 +205,7 @@ if sorting
     S_lb = S_lb(:,Sidx) ;
     for i=1:M; labelinput_new{i} = labelinput{Sidx(i)} ;end;
     if ~isempty(SExact)
-       SExact = SExact(Sidx) ;
+        SExact = SExact(Sidx) ;
     end
 end
 %
@@ -246,59 +215,81 @@ if nb_legend<M
 end
 
 
+
+MarkerShape = MarkerShapeAvail;
+
+while size(MarkerShape,1) < M
+    MarkerShapeAvail = MarkerShapeAvail([2:end 1]);
+    MarkerShape(end+1 : end+size(MarkerShapeAvail,1)) = MarkerShapeAvail;
+end
+
 % For each index, plot final estimated value:
 for i=1:M
-    plot(NN(end),S(end,i),'o','MarkerSize',10,'MarkerFaceColor',clrs(i,:),'MarkerEdgeColor','k')
+    semilogy(NN(end),S(end,i),'Marker',MarkerShape(i),'MarkerSize',10,'MarkerFaceColor',clrs(i,:),'MarkerEdgeColor','k')
     hold on
 end
 
 % Draw an horizontal line at zero:
-plot([H1 H2],[0 0],'k')
+semilogy([H1 H2],[0 0],'k')
+
+
+
+
 
 
 for i=1:M
     % Plot trajectory with increasing number of samples:
-    plot(NN,S(:,i),'Color',clrs(i,:),'Linewidth',2.5);
-    box 'on'    
-     %Plot exact index value (if known):
+    semilogy(NN,S(:,i),'Color',clrs(i,:),'Linewidth',2.5);
+    box 'on'
+    %Plot exact index value (if known):
     if ~isempty(SExact)
-     
-      %  plot([NN(end) NN(end)+mean(diff(NN))],[S(end,i) SExact(i)],'o:','MarkerSize',10,'MarkerFaceColor',tmp(clrs(i),:),'Color',tmp(clrs(i),:))
-        plot([H1 H2],[SExact(i) SExact(i)],'--','Color',clrs(i,:),'LineWidth',2)
+
+        %  plot([NN(end) NN(end)+mean(diff(NN))],[S(end,i) SExact(i)],'o:','MarkerSize',10,'MarkerFaceColor',tmp(clrs(i),:),'Color',tmp(clrs(i),:))
+       semilogy([H1 H2],[SExact(i) SExact(i)],'--','Color',clrs(i,:),'LineWidth',2)
     end
-    
+
 end
 
 
 % Plot confidence bounds
+% 
+% for i=1:Msens % add rectangular shade:
+%     h = fill([sigma_lb(idx(i)),sigma_ub(idx(i)),sigma_ub(idx(i)),sigma_lb(idx(i))],...
+%         [mi_lb(idx(i)),mi_lb(idx(i)),mi_ub(idx(i)),mi_ub(idx(i))],clrs(idx(i),:));
+% end
 
 if  any(any(S_lb))~=0
     for i=1:M
-        plot(NN,S_lb(:,i),'Color',clrs(i,:),'LineStyle','--','Linewidth',1.2)
+        semilogy(NN,S_lb(:,i),'Color',clrs(i,:),'LineStyle','--','Linewidth',1.2)
     end
 end
 if  any(any(S_ub))~=0
     for i=1:M
-        plot(NN,S_ub(:,i),'Color',clrs(i,:),'LineStyle','--','Linewidth',1.2)
+        semilogy(NN,S_ub(:,i),'Color',clrs(i,:),'LineStyle','--','Linewidth',1.2)
     end
 end
 % Axes labels:
-
-xlabel(X_Label,'FontName',fn,'FontSize',fs)
-ylabel(Y_Label,'FontName',fn,'FontSize',fs)
-
+title('Elementary Effects on Yield: Convergence', 'FontSize',14);
+subtitle('f (Convergence) = 1/10 | n (Bootstrapping) = 1000 | \alpha = 0.05')
 
 legend(labelinput_new, 'Location','eastoutside')
-xlabel('Number of model evaluations','FontSize',fs,'FontName',fn)
-ylabel('Mean of EEs','FontSize',fs,'FontName',fn)
+xlabel(X_Label,'FontName',fn,'FontSize',fs)
+ylabel(Y_Label,'FontName',fn,'FontSize',fs)
 grid on
-set(gca,'FontSize',fs,'FontName',fn)
+set(gca,'XTick',NN,'FontName',fn,'FontSize',fs);
 box on
-
-
 %Tick labels for horizontal axis:
 str=cell(size(NN)); for k=1:R; str{k}=num2str(NN(k)); end
 axis([H1,H2,V1,V2])
-set(gca,'XTick',NN,'XTickLabel',str,'FontName',fn,'FontSize',fs)
+
 grid on
+
+
+y_threshold = yline(0.25,'--r',{'Threshold', '= 0.25 t/ha'},'LineWidth',3,...
+    'HandleVisibility','off');
+y_threshold.LabelHorizontalAlignment = 'left';
+
+
+%% END ADJUSTMENT
+
 

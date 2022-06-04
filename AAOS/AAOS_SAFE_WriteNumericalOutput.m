@@ -1,22 +1,22 @@
-function [] = AAOS_EE_WriteNumericalOutput(Config, Directory, FileName, SA_Output, LotNames, LotIdx)
+function [] = AAOS_SAFE_WriteNumericalOutput(Config, Directory, FileName, LotAnalysisOut, LotNameFull)
 
 
 
-% Assign parameter file name as sheet name
-LotName = LotNames(LotIdx);
-LotNameFull = "Lot" + LotName;
-% SheetName = strcat(LotNameFull + "_Num");
+
+
 
 % Get parameter input file content:
 % Header (1. row):
 ColumnTitles(1) = "Season"+Config.season+"/ "+LotNameFull+" / "+Config.TargetVar.NameFull+" --- Parameters:";
-ColumnTitles(2:1+size(Config.SampledParNames,1)) = SA_Output.(LotNameFull).ParameterNames';
+ColumnTitles(2:1+size(LotAnalysisOut.SamplingOut.ColumnTitles,2)) = LotAnalysisOut.SamplingOut.ColumnTitles;
 cell_ColumnTitles = cellstr(ColumnTitles);
+
+%% CHANGE!
 % Row titles (3. row - end):
-RowTitles = SA_Output.(LotNameFull).RowTitles;
+RowTitles = LotAnalysisOut.RowTitles;
 cell_RowTitles = cellstr(RowTitles);
 % Data (numerical):
-NumericValues = SA_Output.(LotNameFull).Values;
+NumericValues = LotAnalysisOut.Values;
 
 % Write data to Excel file:
 cd(Directory.AAOS_Output);

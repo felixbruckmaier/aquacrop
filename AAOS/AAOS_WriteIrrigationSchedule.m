@@ -5,10 +5,10 @@ cd(Directory.AAOS_Input);
 
 %% Get irrigation data:
 % Determine name of file(s):
-if Config.N_IrrigationFiles == 0 % data for all lots stored in 1 file
+if Config.N_IrrigationFiles == 1 % data for all lots stored in 1 file
     idx_IrrFile = '*';
-elseif extrainput.IrrDiff == 1 % data stored in 1 file per lot
-    idx_IrrFile = '*'+string(idx_plot)+'*'; 
+elseif Config.N_IrrigationFiles == 0 % data stored in 1 file per lot
+    idx_IrrFile = '*'+string(Config.LotName)+'*'; 
 end
 File = dir(fullfile(Directory.AAOS_Input,'*Irrigation*'+Config.season+idx_IrrFile+'.csv')); %% file w/ dates & values
 FileName = File.name;

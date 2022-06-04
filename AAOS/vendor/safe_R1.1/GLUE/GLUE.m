@@ -97,7 +97,7 @@ end
 % GLUE
 %%%%%%%%%%%%
 
-idx = sum(GLF<+repmat(threshold,N,1),2)==P ;% indices of behavioural samples
+idx = sum(GLF < +repmat(threshold,N,1),2)==P ;% indices of behavioural samples
 % idx = GLF >= threshold ; % old (scalar case)
 
 if isempty(idx)
@@ -124,14 +124,22 @@ else
         if ~isempty(Llim_);
             Llim(t) = Llim_(end);
         else
-            Llim(t) = y_sorted(1);
+            if any(idx==1)
+                Llim(t) = y_sorted(1);
+            else %% ADJUSTMENT if all simulations non-behavioural:
+                Llim(t) = nan;
+            end
         end
         % Find upper limit:
         Ulim_ = y_sorted(CDF_t>1-alfa);
         if ~isempty(Ulim_);
             Ulim(t) = Ulim_(1);
         else
-            Ulim(t) = y_sorted(end);
+            if any(idx==1)
+                Ulim(t) = y_sorted(end);
+            else %% ADJUSTMENT if all simulations non-behavioural:
+                Ulim(t) = nan;
+            end
         end
     end
     

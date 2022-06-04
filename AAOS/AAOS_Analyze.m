@@ -15,7 +15,9 @@ for idx_SimLot = 1:LotNum
     Config.LotName = Config.SimulationLots(Config.LotIdx); % "name" (= index of all lots specified by the user):
     fprintf(1,"... analyzing lot '%s' (#%s/%s)...\n",...
         string(Config.LotName),string(idx_SimLot),string(LotNum));
-
+    % Derive full name for current lot:
+LotNameFull = strcat("Lot",string(Config.LotName));
+LotAnalysisOut = struct;
 
     %% Adopts the config of the parameter set currently active in this round:
     Config = AAOS_ReadParameterConfig(Config);
@@ -33,9 +35,8 @@ for idx_SimLot = 1:LotNum
             [Config,AnalysisOut] = AAOS_PerformModelEvaluation...
                 (Config,Directory,AnalysisOut);
         case {"EE","GLUE"}
-            %% temp. workaround -> move whole struct set-up to AAOS_Initialize
-            AnalysisOut = struct;
-            [Config, AnalysisOut] = AAOS_PerformSAFE(Config, Directory,AnalysisOut);
+            [Config, LotAnalysisOut] = AAOS_PerformSAFE(Config, Directory,LotAnalysisOut,LotNameFull);
+            AnalysisOut.(LotNameFull) = LotAnalysisOut;
     end
 end
 

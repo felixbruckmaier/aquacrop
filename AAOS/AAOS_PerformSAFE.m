@@ -1,58 +1,61 @@
-function [Config, SA_Output] = AAOS_PerformSAFE(Config, Directory, SA_Output)
+function [Config, LotAnalysisOut] = AAOS_PerformSAFE(Config, Directory, LotAnalysisOut, LotNameFull)
 
-% % Get number of test variables
-% TestVarIds = Config.TestVarIds;
-%
-% for VarIdx = TestVarIds
-% % Determine test variable:
-% [TestVarNameFull,TestVarNameShort] = AAOS_SwitchTestVariable(VarIdx);
-%
-%     % For CC & SWC: Retrieve observations:
-%     % Assign SWC depth to be tested (set to "1" when analyzing Canopy Cover):
-%     % -> column idx
-%     if TestVarNameShort == "SWC"
-%         idx_Observation = Config.idx_SimDepthsObservations(Config.idx_TestSWC);
-%     elseif TestVarNameShort == "CC"
-%         idx_Observation = 1;
-%     end
-%     % Read observed values for given test variable & depth:
-%     [ObsTestVar,~] = AAOS_ReadTestVariableObservations(Directory,Config,...
-%         TestVarNameShort,idx_Observation);
-%
-%     % Store test variable observations:
-%     Config.TestVariableObservations = ObsTestVar;
+
+
+%% move to intitialize
+Config.SamplingOut_FileNamePrefix = "SamplesForSAFE_";
+
+%% Derive name for struct (used for analysis) & .mat file (either opened or written)
+% for the current lot, containing names & ranges of sampled parameters,
+% and all (valid) samples, each of which incl. values of input parameters &
+% simulated output variables (always: Yield or Biomass; if available: Canopy
+% Cover and/ or Soil Water Content):
+
+
+
+% Derive name of file to store the derived samples (Option 1, see below), or
+% to be opened (Option 2):
+SamplingOut_FileNameFull = strcat(Config.SamplingOut_FileNamePrefix, "Season",Config.season,"_",LotNameFull);
+%% TEMP:
+SamplingOut_FileNameFull = strcat(Config.SamplingOut_FileNamePrefix, "Season",Config.season);
+
+
+
+
+
+if Config.CreateNewSamples == 1
+
+
+
+    [Config,SamplingOut] =...
+        AAOS_SAFE_DeriveValidSamples(Directory,Config);
+    cd(Directory.AAOS_Output);
+    save(SamplingOut_FileNameFull, "SamplingOut");
+    LotAnalysisOut.SamplingOut = SamplingOut;
+    cd(Directory.BASE_PATH);
+
+
+elseif Config.CreateNewSamples == 0
+    % Option to test existing .mat output files, i.e. skipping the entire
+    % sampling/model evaluation process:
+    %     [Config, AnalysisOut] = AAOS_SAFE_TEST_BypassSamplingAndEval(Config, Directory, AnalysisOut);
+    %     AnalysisOut.("Lot"+Config.LotName).ObsTestVar = ObsTestVarTemp;
+    cd(Directory.AAOS_Output);
+    LotAnalysisOut.SamplingOut = importdata(SamplingOut_FileNameFull+".mat");
+    cd(Directory.BASE_PATH);
+
+end
+
+
 
 if Config.RUN_type == "GLUE"
-    % Read & store observations for CC & SWC:
-    Config.ObsTestVar = struct;
-    TestVarIds = Config.TestVarIds;
-    for TestVarIdx = 1:min(2,numel(TestVarIds))
-        [TestVarNameFull,TestVarNameShort] = AAOS_SwitchTestVariable(TestVarIdx);
-        [ObsTestVar] = AAOS_ReadTestVariableObservations(Directory, Config, TestVarNameShort);
-        if ~isempty(ObsTestVar)
-            Config.ObsTestVar.(TestVarNameFull) = ObsTestVar;
-        end
-    end
+    %% (MOVE TO Initialize.m:) Define row titles for GLUE:
+%     LotAnalysisOut.RowTitles(1,1) = ["INPUT VALUES"];
+    LotAnalysisOut.RowTitles(1:2,1) = ["Lower limit","Upper limit"];
+    LotAnalysisOut.RowTitles(6,1) = ["Samples"];
+%     LotAnalysisOut.RowTitles(rows_Samp,1) = 1:n_new;
+    [Config, LotAnalysisOut] = AAOS_SAFE_PerformGLUE(Config, Directory, LotAnalysisOut);
+elseif Config.RUN_type == "EE"
+    [Config, LotAnalysisOut] = AAOS_SAFE_PerformEE(Config, Directory, LotAnalysisOut);
 end
 
-% Read test parameter values
-cd(Directory.BASE_PATH)
-SimRound = 0;
-Config = AAOS_ReadParameterValues(Config,[],SimRound);
-Config = AAOS_SeparateCropParameters(Config);
-
-ParNames = Config.AllParameterNames;
-Config.AllParameterValues = Config.AllParameterUppLim;
-N_ParAll = size(ParNames,1);
-
-% Create YldForm field & get unit for AOS output phenology unit:
-[Config, ~] = AAOS_ConvertandCheckParameters(Config,Directory);
-
-% Option to test existing .mat output files, i.e. skipping the entire
-% sampling/model evaluation process:
-skip = 0;
-if skip == 1
-    [Config, SA_Output] = AAOS_SAFE_TEST_BypassSamplingAndEval(Config, Directory, SA_Output);
-else
-    [Config, SA_Output] = AAOS_SAFE_PerformSensitivityAnalysis(Config, Directory, SA_Output, N_ParAll);
-end

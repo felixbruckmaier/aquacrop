@@ -1,11 +1,5 @@
-function [SimTestVar] = ...
+function [SimVar,TestSimVarSize] = ...
     AAOS_SAFE_EvaluateAOSsimulation(InputTestPar,Config,Directory)
-
-%% Temporary solution - adjust AAOS_WriteModelParameters
-% ParNames = Config.AllParameterNames;
-% N_Par = size(ParNames,1);
-% AllParIdcs = 1:N_Par;
-% Config.TestParameterIdx = AllParIdcs;
 
 % Transfer current sample row from ValueMatrix to array that will be
 % accessed to get simulation values
@@ -22,8 +16,34 @@ cd(Directory.AOS);
 AquaCropOS_RUN;
 cd(Directory.BASE_PATH)
 
-% Read & store simulated values of target and test variables:
-TestVarNameShort = "";
-ObsTestVar = [];
-[Config,SimTestVar] = ...
-    AAOS_ReadAOSsimulationOutput(Config,TestVarNameShort,ObsTestVar);
+% Read & store simulated values of...
+% TargetVarName = Config.TargetVar.NameShort;
+% a) both target variables & biomass loss:
+Config.TargetVar.NameFull_temp = Config.TargetVar.NameFull;
+Config.TargetVar.NameFull = "BM";
+Config = AAOS_ReadAOSsimulationOutput(Config,"BM",[]);
+SimVar(1) = Config.SimTargetVariable;
+SimVar(2) = Config.SimBiomassLoss;
+Config.TargetVar.NameFull = "Y";
+Config = AAOS_ReadAOSsimulationOutput(Config,"Y",[]);
+SimVar(3) = Config.SimTargetVariable;
+Config.TargetVar.NameFull = Config.TargetVar.NameFull_temp;
+
+% b) test variables (in case defined (1), and available (2) ):
+TestSimVarSize = [1, nan; 2, nan];
+TestVarIds = Config.TestVarIds;
+if ~isempty(TestVarIds) % (1)
+    for idx2 = 1:numel(TestVarIds)
+        TestVarIdx = TestVarIds(idx2);
+        [~,TestVarName] = AAOS_SwitchTestVariable(TestVarIdx);
+        [TestVarObs] = AAOS_ReadTestVariableObservations...
+            (Directory, Config, TestVarName);
+        if ~isempty(TestVarObs) % (2)
+            Config = AAOS_ReadAOSsimulationOutput(Config,TestVarName,TestVarObs);
+            SimTestVariable = Config.SimTestVariable;
+            TestSimVarSize(idx2,2) = size(TestVarObs,1);
+            SimVar(end+1 : end+TestSimVarSize(idx2,2)) = SimTestVariable;
+        end
+    end
+end
+

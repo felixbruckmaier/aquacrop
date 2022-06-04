@@ -158,9 +158,7 @@ for i=1:r
     ki=k ;
 end
 
-%% Temporary adjustment:
-mi_temp       = mean(EE,'omitnan');
-EE = fillmissing(EE,'constant',mi_temp);
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -169,13 +167,19 @@ EE = fillmissing(EE,'constant',mi_temp);
 
 
 if Nboot>1
-    
+    %% / ADJUSTMENT
+    EE(EE==inf) = nan;
+    mi_temp       = mean(EE,'omitnan');
+    EE = fillmissing(EE,'constant',mi_temp);
+    %% / ADJUSTMENT
+
     bootsize=r;
     B   = floor((rand(bootsize,Nboot)*r+1));
     mi_all=nan(Nboot,M) ;
     sigma_all=nan(Nboot,M);
 
     for n=1:Nboot
+        a = EE(B(:,n),:);
         mi_all(n,:)= mean(EE(B(:,n),:));
         sigma_all(n,:)=std(EE(B(:,n),:));
     end

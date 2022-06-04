@@ -56,7 +56,7 @@ fs = 20 ; % font size of axes, labels, etc.
 % %lc  =  [150 150 150]/256 ; % line colour
 % %lch = 'k' ; % line colour for highlighted records
 
-nb_fig=1; %number of digits after decimal points for vertical axis
+nb_fig=3; %number of digits after decimal points for vertical axis
 
 %%%%%%%%%%%%%%
 % Check inputs
@@ -98,8 +98,12 @@ if nargin > 3
    end
 end
 
+
+
 xmin  = min(X)  ;
 xmax  = max(X)  ;
+
+
 X2 = (X-repmat(xmin,N,1))./(repmat(xmax-xmin,N,1)) ; % (N,M) 
 X2 = X2' ; % (M,N)
 

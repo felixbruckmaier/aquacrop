@@ -223,10 +223,14 @@ ylabel(Y_Label,'FontName',fn,'FontSize',fs)
 
 
 legend(labelinput_new, 'Location','eastoutside')
-xlabel('Number of model evaluations','FontSize',fs,'FontName',fn)
-ylabel('Mean of EEs','FontSize',fs,'FontName',fn)
+labelh = xlabel('Number of model evaluations','FontSize',fs,'FontName',fn);
+labelv = ylabel('Mean of EEs [t/ha]','FontSize',fs,'FontName',fn);
 grid on
 set(gca,'FontSize',fs,'FontName',fn)
+xlimit = get(gca, 'XLim');
+ylimit = get(gca, 'YLim');
+labelv.Position(1) = - xlimit(2)/10;
+labelh.Position(2) = -0.05 * ylimit(2);
 box on
 
 
