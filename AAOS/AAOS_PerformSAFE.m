@@ -2,8 +2,7 @@ function [Config, LotAnalysisOut] = AAOS_PerformSAFE(Config, Directory, LotAnaly
 
 
 
-%% move to intitialize
-Config.SamplingOut_FileNamePrefix = "SamplesForSAFE_";
+
 
 %% Derive name for struct (used for analysis) & .mat file (either opened or written)
 % for the current lot, containing names & ranges of sampled parameters,
@@ -15,7 +14,7 @@ Config.SamplingOut_FileNamePrefix = "SamplesForSAFE_";
 
 % Derive name of file to store the derived samples (Option 1, see below), or
 % to be opened (Option 2):
-SamplingOut_FileNameFull = strcat(Config.SamplingOut_FileNamePrefix, "Season",Config.season,"_",LotNameFull);
+SamplingOut_FileNameFull = strcat(Config.SamplingOut_FileNamePrefix,"_",LotNameFull);
 %% TEMP:
 SamplingOut_FileNameFull = strcat(Config.SamplingOut_FileNamePrefix, "Season",Config.season);
 

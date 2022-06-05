@@ -70,7 +70,7 @@ end
 SampStrategy = Config.SampStrategy;                                  
 design_type = Config.DesignType;   
 cd(Directory.SAFE_Sampling);
-r = Config.r;
+r = Config.r_default;
 SampleValuesMatrix = OAT_sampling(r,N_Par,DistrFun,DistrPar,SampStrategy,design_type);
 cd(Directory.BASE_PATH);
 
