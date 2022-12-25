@@ -1,33 +1,45 @@
-# Automated AquaCrop-OpenSource (AAOS) User Manual
-## Author: Felix Bruckmaier
-## Date: 23.03.2022
+# Automated AquaCrop-OpenSource (AAOS) tool
+GLUE and Matlab-based tool to evaluate model errors for large samples of AquaCrop-OS input parameter combinations.
 
+## Table of Contents
+- [Introduction](#introduction)
+- [Technologies](#technologies)
+- [Setup](#setup)
+- [Acknowledgments](#acknowledgments)
 
-# Functionalities
-* Provided by the current version:
-	* Automated model setup and simulation for:
-		* several lots and seasons,
-		* up to 2 test variable timeseries (Canopy Cover/ Soil Water Content),
-		* 2 target variables (Harvested Biomass/ Harvested Yield),
-		* 2 different parameter value sets (Default/ Calibrated),
-		* and up to 3 different calibration rounds (according to the AquaCrop calibration guidelines)
-		* Now possible for: season = 2019, lot = 1, test variable = CanopyCover, target variable = Yield)
-		* NOTE: The tool does NOT offer automated calibration; the user is required
-to provide input files with both default, and calibrated parameter values.
+## Introduction
+This tool is supposed to support AOS model calibration for data-scarce regions. It enables the analysis of AOS model performance for a potentially large number of model input parameter combinations with regard to different model variables (biomass or yield at harvest and/or canopy cover and/or soil water content).
 
-* Coming soon:
-	* Validation of the calibrated model through the 'Validation Set Approach';
-	* Quantification of water, aeration, heat, and cold stresses;
-	* Parameter sensitivity analysis (link to SAFE toolbox);
-	* Uncertainty analysis via the 'GLUE method' (link to SAFE toolbox);
-	* Output file creation incl. graphical evaluation for every feature;
-	* App feature for non-Matlab users.
+## Technologies
+- MATLAB R2022a
+- AquaCrop-OpenSource (AOS) v.6.0a
+- Sensitivity For Everybody (SAFE) toolbox v.1.1
+- Microsoft Excel (optional)
 
+## Setup
+To run the tool: 
+1. Download AAOS
+2. Download & unzip AOS and copy the entire folder to the folder: "..\AAOS\vendor"
+3. Download & unzip SAFE and copy the entire folder to the folder: "..\AAOS\vendor"
+4. Download xlswritefig.m and copy the entire folder to the folder: "..\AAOS\vendor" (optional: to write MATLAB figures to a Microsoft Excel spreadsheet)
+5. Adjust code in "..\safe_R1.1\GLUE" to account for the case where all simulations are non-behavioral according to SAFE terminology.
+- Replace the code in line 125 ("Llim(t) = y_sorted(1);") with the following snippet:
+if any(idx==1)
+    Llim(t) = y_sorted(1);
+else
+    Llim(t) = nan;
+end
+- Replace the code in line 132 ("Ulim(t) = y_sorted(end);") with the following snippet:
+if any(idx==1)
+    Ulim(t) = y_sorted(end);
+else
+    Ulim(t) = nan;
+end
+6. Follow the steps listed in the [AAOS-v1.0_Instruction-Manual.pdf](/AAOS-v1.0_Instruction-Manual.pdf) file, to run the tool.
 
-# Get started:
-1. Download AquaCrop-OS v.6.0 and copy it into folder "AAOS/vendor/"
-2. Specify input data:
-	* a) AOS .txt files in folder "AAOS/vendor/Input/"
-	* b) AAOS .csv files in folder "AAOS/AAOS_Input/"
-3. Specify config: "default.m" and "season_x" in folder "AAOS/config/"
-4. Execute "RUN_AAOS.m" in folder "AAOS/AAOS_Output/"
+## Acknowledgements
+- AOS tool: Foster, T., Brozović, N., Butler, A., Neale, C., Raes, D., Steduto, P., Fereres, E. and Hsiao, T. (2017), ‘AquaCrop-OS: An open source version of FAO’s crop water productivity model’, Agricultural Water Management 181, 18–22.
+Available at: https://www.sciencedirect.com/science/article/pii/S0378377416304589
+- SAFE toolbox: Pianosi, F., Sarrazin, F. and Wagener, T. (2015), ‘A matlab toolbox for global sensitivity analysis’, Environmental Modelling Software 70, 80–85.
+Available at: https://www.sciencedirect.com/science/article/pii/S1364815215001188
+- xlswritefig.m: Michelle Hirsch (2022). xlswritefig (https://github.com/michellehirsch/xlswritefig), GitHub. Retrieved December 8, 2022. 

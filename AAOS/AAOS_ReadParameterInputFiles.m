@@ -18,27 +18,27 @@ for FileIdx = 1:FileNum
 
             % Default analysis/ calibration (1. round) use default values:
             case {"DEF","CAL"}
-                ParFileType = "DEF";
+                Config.ParFileType = "DEF";
 
                 % Stress quantification/ sensitivity analysis use calibrated
                 % values:
-            case {"STQ","GSA"}
-                ParFileType = "CAL";
+            case {"STQ","EE","GLUE"}
+                Config.ParFileType = Config.RUN_type;
         end
 
     elseif FileIdx == 2
         % Calibration (2. round) uses calibrated values:
-        ParFileType = "CAL";
+        Config.ParFileType = "CAL";
     end
 
     % Find the file in the correct directory:
     cd(Directory.AAOS_Input);
     ParFileDir = dir(fullfile(Directory.AAOS_Input,...
-        '*InputPars*'+Config.season+'*'+ParFileType+'.csv'));
+        '*InputPars*'+Config.ParFileType+'.csv'));
 
     % Store file content:
-    Config.ParameterFileNames(FileIdx,1) = ParFileType;
-    Config.ParameterValues.(ParFileType)...
+    Config.ParameterFileNames(FileIdx,1) = Config.ParFileType;
+    Config.ParameterValues.(Config.ParFileType)...
         = readtable(ParFileDir.name,'ReadVariableNames',true);
 
 end

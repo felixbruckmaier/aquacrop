@@ -1,70 +1,52 @@
-% Choose season - "2018" or "2019":
-Config.season = "2019";
+%% General, season-independent specifications to be determined by the user
 
-% Add additional text to output filename (-> at the end):
-Config.filename_xtra = ""; % either "" or "_blablub"
+%% 1) Define general input and output settings:
+% 1.1) Choose season (default: "template"):
+Config.season = "2021";
+% 1.2) Select type of analysis
+% ... available:
+% - Generalized Likelihood Uncertainty Estimation ("GLUE")
+% - Elementary Effects method ("EE"):
+Config.RUN_type = "GLUE";
+% 1.3) Add additional text to output filename (-> inserted at the end):
+Config.filename_xtra = "";
+% 1.4) Determine type of graphical output to be created:
+% - available for EE: Sensitivity analysis of parameters ("EE")
+% - available for GLUE (model error analysis for test and/or target variables)
+% -- Time-series analysis ("TS")
+% -- Time-series analysis/ Predicton limits ("PS")
+% -- Culminated distribution function ("CDF")
+% -- Analysis through quadrants ("Q")
+Config.PlotGraphs = ["CDF"]; % "EE","TS","PL","CDF","Q"
+% 1.5) Decide whether to save graphical output in Excel ("Y" or "N")
+% (only available for Excel file format “.xlsx”)
+Config.WriteFig = "Y";
 
-% Decide whether to save graphical output in Excel ("Y" or "N")
-Config.InclExcel = "N";
+%% 2) Define SAFE settings (“Sensitivity Analysis For Everybody” toolbox):
+% 2.1) Select error thresholds for determining the model’s goodness of fit (GoF):
+% ... here: GoF criteria = fixed:
+% - TargetVar -> Absolute Relative Error (ARE) [%]
+% - TargetVar -> Normalized Root Mean Square Error (NRMSE) [%]
+Config.thresh_TargetVar = 15; % ... for target variable simulations
+Config.thresh_TestVar = 15; % ... for test variable simulations
+% 2.2) Select sampling strategy & design of sampling space exploration:
+Config.SampStrategy = 'lhs' ; % Latin Hypercube Sampling (LHS)                                      
+Config.DesignType = 'radial'; % 'radial' or 'trajectory'
 
-% Select type of analysis:
-% WORKING:
-% - "CAL" : Default run & calibration & recalculation of resp. other variables;
-% - "STRQ" : Quantification of water, aeration, heat, & cold stresses;
-% - "CAL" & extrainput.CalcMean : Define if all plots shall be simulated individually
-% (extrainput.CalcMean = "0"), or a mean of all simulations/ observations ("1")
-% - FOR VALIDATION, CALCULATE FOR ALL PLOTS TO BE VALIDATED THE RESPECTIVE MEAN
-% OF PARAMETER VALUES BEFORE-HAND, CHOOSE RUN_type = "CAL" & extrainput.validation = "1"
-%
-% CURRENTLY NOT WORKING:
-% "GSA" = Global Sensitivity Analysis via SAFE toolbox. - REQU SMALL ADJUSTMENTS
-% "DEF" = Only simulation with default parameter values
-%       ERROR MESSAGE:
-%       "Error using histc
-%       Edge vector must be monotonically non-decreasing.
-%       Error in AAOS_PlotFigCalibration (line 248)
-%       GoFs_count = histc(GoF(:,idx),GoFs_uni);"
-% "VAL" = See "CAL", but (automatically) calibr. & validating 50 % of the plots
-Config.RUN_type = "DEF";
-Config.EE_num = 1000;
-Config.validation = 0; % only labels figures (input data by the user, no automatic calculation of mean for the validation plots) 
-% FOR CAL:
-Config.CalcMean = 1; % 1 makes "extrainput.validation" irrelevant
-% FOR STRQ:
-Config.CalcMeanStress = 1; % Mean STRQ in addition to individual = plot-specific STRQ
-
-
-% b) Validation:
-% b)i) Selection via ttest -> define ttest probability threshold for train vs. test popul. split [0..1]
-Config.ttestThreshold = 0.95;
-
-
-% Example for ttested populations of plots:
-% -> season 2018: Biomass, p = 1, test plots = [1 4 5 9 10 11 14 15 16 18 21 23 24 26 29 32];
-% -> season 2019: Yield, p = 1, test plots = [1,3,8,9,10,11,13,15,17,19,20,24]
-
-% if fix value used ("2"): assign value
-Config.SubstituteSWC = 1; % 1 = WP; 2 = FC; 3 = SAT
-
-% 1.c) Select Ini SWC calculation method: 'Depth'; 'Layer'
-Config.IniSWCcalc = "Depth";
-
-% 2.) Calibration: When including SWC, select soil depth idx to analyze:
-Config.TestSWCidx = 1; % here: 2019 = 1-4; 2018 = 1 (2018 autom. resets)
-
-% For Analysis Type = "RAW" (GDD<->CD conversion):
-% 1. Select types for which parameter input files shall be written:
-Config.WriteParFiles = ["CAL"]; % ["CAL", "DEF"]
-% 2. Choose parameters whose ranges are to be determined, by
-% transforming the AquaCrop Manual ranges [GDD] into [CD]:
-Config.SwitchCalType = 0;
-Config.AdjustMaturity = 1; % Maturity also being adjusted
-
-
-% Graphical output specifications (NOT USED ATM):
-Config.excel.CellWidth = 2.1;
-Config.excel.CellHeight = 0.45;
-Config.excel.FontSize = 10;
-
-% Select Goodness of Fit criteria:
-Config.GoF = ["R2","RMSE","NSE"]; % !!! keep order:"R2","RMSE","NSE" !!!
+%% 3) Define output specifications:
+% 3.2) Graphical output:
+% 3.2.1) Spreadsheet dimensions (-> Position & size of graphs)
+Config.OutputSheet.CellWidth = 2.1; % Cell width
+Config.OutputSheet.CellHeight = 0.45; % Cell height
+% 3.2.2) Graph characteristics:
+Config.GraphFontSizeNormal = 16; % Font size of normal text
+Config.GraphFontSizeTitle = 18; % Font size of titles
+Config.GraphFontSizeSubtitle = 16; % Font size of subtitles
+Config.GraphLineWidth = 4; % Line width
+Config.GraphMarkerSizeDotPlot = 50; % Marker size in dot plots
+Config.GraphMarkerSize = 14; % Marker size in mixed plots
+Config.GraphColors = [[0 0.4470 0.7410]; [0.8500 0.3250 0.0980];...
+    [0.9290 0.6940 0.1250]; [0.4940 0.1840 0.5560]; [0.4660 0.6740 0.1880];...
+    [0.3010 0.7450 0.9330];[0.6350 0.0780 0.1840]]; % Graph colors
+% ... = blue/orange/yellow/purple/green/cyan/red; see...:
+% https://www.mathworks.com/help/matlab/creating_plots/specify-plot-colors.html

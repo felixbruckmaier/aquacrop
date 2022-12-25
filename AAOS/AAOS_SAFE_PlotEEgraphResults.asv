@@ -1,0 +1,58 @@
+function [] = AAOS_SAFE_PlotEEgraphResults(Config, Directory, FileName, SA_Output,LotName)
+
+LotNameFull = "Lot" + LotName;
+% Define title of graphical output plot:
+X_labels(1) = cellstr("Season "+Config.season+"/ Plot #"+...
+    string(Config.LotName)+"/ "+string(Config.TargetVar.NameFull)+": Elementary Effects (EE)");
+% Remove underscore sign from parameter names (plot function forces characters into lowercase)
+SampledParNames = cellstr(replace(string(SA_Output.(LotNameFull).ParameterNames),'_','-'));
+M_new = size(SampledParNames,1);
+% Define legend for sampled parameters:
+X_labels(2:M_new+1) = SampledParNames;
+
+mi = SA_Output.(LotNameFull).Values(6, 1:end-1);
+sigma = SA_Output.(LotNameFull).Values(7, 1:end-1);
+
+% Plot results in the plane (mean(EE),std(EE)):
+cd(Directory.SAFE_Morris);
+EET_plot(mi,sigma,X_labels);
+
+if Config.WriteFig == 'Y'
+    % Adjust figure dimensions (acc. to number of parameters M, but min = 13):
+    % (spreadsheet-cell-dependent)
+    fig_height = Config.OutputSheet.CellHeight * max(13,M_new + 3); % cells * cell height
+    fig_width = Config.OutputSheet.CellWidth * 8; % cells * cell width
+    set(gcf, 'units','centimeters','position', [0,0,fig_width,fig_height])
+    fig_row = string(ceil((Config.LotIdx - 1) * (2 *fig_height - 1)) + 1);
+    fig_loc = append('A', fig_row);
+    Excel = actxserver('Excel.Application');
+    Excel.DisplayAlerts = false; % Suppress Excel warning popups, e.g. when overwriting a file
+
+    cd(Directory.vendor);
+    xlswritefig(gcf,FileName,"Graphical",fig_loc);
+    %     string(fig_col+fig_row));
+    clf(gcf); % Clear the figure for the next graph (otherwise Matlab
+    %     keeps plotting all graphs into the same figure)
+    cd(Directory.BASE_PATH);
+end
+
+% Plot the sensitivity measure (mean of elementary effects) as a function
+% of model evaluations:
+X_labels(1) = [];
+SampleSizes = SA_Output.(LotNameFull).SampleSizes;
+m_r = SA_Output.(LotNameFull).Values(2:6,:);
+
+if m_r
+cd(Directory.SAFE_Plotting);
+figure; plot_convergence(m_r,SampleSizes,[],[],[],...
+    'no of model evaluations','mean of EEs',X_labels)
+
+if Config.WriteFig == 'Y'
+    cd(Directory.vendor);
+    fig_loc = append('K', fig_row);
+    xlswritefig(gcf,FileName,"Graphical",fig_loc);
+    %     string(fig_col+fig_row));
+    clf(gcf); % Clear the figure for the next graph (otherwise Matlab
+    %     keeps plotting all graphs into the same figure)
+    cd(Directory.BASE_PATH);
+end

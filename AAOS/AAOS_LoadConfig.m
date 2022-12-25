@@ -1,4 +1,4 @@
-% Create the struct with all config values
+%% Create struct with all config values
 function[Config] = AAOS_LoadConfig()
 
     Config = {};

@@ -1,7 +1,7 @@
 %% Calculates currently active goodness of fit criteria (A, B, or C)
 % for the given simulated & observed values of the current target variable.
 % Available GoF: R2, RMSE, NSE.
-function Config = AAOS_CalculateGoF(Config,SimValues,ObsValues)
+function Config = AAOS_ModelEval_CalculateGoF(Config,SimValues,ObsValues)
 
 % GoF is only meaningful for timeseries with >1 value -> Check length of
 % observation timeseries and dont calculate GoF if there is only one value:
@@ -10,7 +10,6 @@ if size(SimValues,1) == 1
 
 else
     % For timeseries with >1 value -> Determine active GoF and calculate value:
-    %format long g
 
     % A) Calculate R2:
     if find(strcmp(Config.GoF,"R2"))
