@@ -17,17 +17,24 @@ N_ParAll = size(ParNames,1);
 % Create YldForm field & get unit for AOS output phenology unit:
 [Config, ~] = AAOS_ConvertandCheckParameters(Config);
 
+[SampledParNames,SampledParIdcs,ValueLimits,FixedParIdcs,FixParsValues,...
+    DistrPar,idx_Ksat,...
+    ParDecimals]...
+    = AAOS_SAFE_PrepareParametersForSampling(Config);
+N_ParNew = size(SampledParNames,1);
 
 %% Sample parameter space & check samples until the number of valid samples
 % reaches/ exceeds the user-defined threshold:
-r_target = Config.r_target;
-r_calc = 0;
-while r_calc < r_target
+N_SimTarget = Config.N_SimTarget;
+N_SimCalc = 0;
 
-    [SampledParNames,Samples_AOS_In,ValueLimits,FixedParIdcs] =...
-        AAOS_SAFE_SampleParameterSpace(Directory,Config);
+while N_SimCalc < N_SimTarget
 
-    M_new = size(SampledParNames,1);
+    [Samples_AOS_In] = AAOS_SAFE_SampleParameterSpace...
+        (Directory,Config,N_ParNew,FixParsValues,DistrPar,idx_Ksat,...
+        ParDecimals,SampledParIdcs,FixedParIdcs);
+
+
 
     [Col_SAFEinAOS,Col_Conv_SAFEinAOS,Col_Conv_SAFEinSAFE]...
         = AAOS_SAFE_DeriveSamplesToAnalyze(Config,N_ParAll,FixedParIdcs);
@@ -35,36 +42,49 @@ while r_calc < r_target
     [Samples_AOS_Out,Rows_rmvPheno] =...
         AAOS_SAFE_ConvertandCheckParameters(Config,N_ParAll,Samples_AOS_In);
 
-    [Rows_UnnormedValidEEsamples,N_UnnormedValidEEsamples] =...
-        AAOS_SAFE_IndicateInvalidSamples(M_new,Rows_rmvPheno);
+
+
+    if Config.RUN_type == "EE"
+        % EE method -> remove invalid samples, keeping sample points intact -
+        % an explanation can be found within the following function:
+        [Rows_ValidSamplesUnnormed,N_ValidSamplesUnnormed] =...
+            AAOS_SAFE_IndicateInvalidSamples(N_ParNew,Rows_rmvPheno);
+    elseif Config.RUN_type == "GLUE"
+        % GLUE -> Remove invalid samples randomly, sample points dont matter:
+        Rows_ValidSamplesUnnormed = find(Rows_rmvPheno == 0);
+        N_ValidSamplesUnnormed = size(Rows_ValidSamplesUnnormed,1);
+    end
 
     % If the overall sample contains any valid parameter combination...
-    % a) Derive valid samples with AOS output values/ units;
-    % b) Recalculate number of sampling points 'r'.
-    if N_UnnormedValidEEsamples > 0
-        % a)
-        Samples_UnnormedValidAOS_Out = Samples_AOS_Out(Rows_UnnormedValidEEsamples,:);
+    if N_ValidSamplesUnnormed > 0
+        % ... Derive valid samples with AOS output values/ units:
+        Samples_ValidAOS_OutUnnormed = Samples_AOS_Out(Rows_ValidSamplesUnnormed,:);
         % (the output array potentially contains exceeding samples)
-
-        % b) 
-        n_calc = N_UnnormedValidEEsamples;
-        r_calc = n_calc / (M_new + 1); % see 'EET_indices.m': n~=r*(M+1)
     end
-disp(r_calc);
+N_SimCalc = N_ValidSamplesUnnormed;
 end
 
-% Determine number of exceeding sample points, if any:
-r_exceed = r_calc - r_target;
-if r_exceed > 0
-    % Remove exceeding samples, keeping sample points intact (see function for
-    % more details), and determine row indices of all samples to be used:
-    [Rows_NormedValidEE_samples] =...
-        AAOS_SAFE_IndicateExceedingSamples(r_calc, r_target, M_new);
+
+% Determine number of exceeding simulations, if any:
+N_SimExceed = N_SimCalc - N_SimTarget;
+% Remove exceeding samples & determine row indices of all samples to be used
+if N_SimExceed > 0
+    if Config.RUN_type == "EE"
+        % EE method -> keeping sample points intact - see the following
+        % function for more details:
+        % Determine number of calculated sample points:
+        N_PointsCalc = N_SimCalc / (N_ParNew + 1); % see 'EET_indices.m': n~=r*(M+1)
+    [Rows_ValidSamplesNormed] =...
+        AAOS_SAFE_IndicateExceedingSamples(N_PointsCalc, N_PointsCalc, N_ParNew);
+    elseif Config.RUN_type == "GLUE"
+        % GLUE -> Remove simulations randomly (sample points dont matter):
+        Rows_ValidSamplesNormed = randsample(N_SimCalc,N_SimTarget);
+    end
 else
     % If no exceeding samples, simply adopt the previous array:
-    Rows_NormedValidEE_samples = 1:N_UnnormedValidEEsamples;
+    Rows_ValidSamplesNormed = 1:N_SimCalc;
 end
-Samples_ValidAOS_Out = Samples_UnnormedValidAOS_Out(Rows_NormedValidEE_samples,:);
+ValidSamplesAOS_Out = Samples_ValidAOS_OutUnnormed(Rows_ValidSamplesNormed,:);
 
 
 % Initialize AOS arrays:
@@ -73,7 +93,7 @@ AOS_Initialize();
 cd(Directory.BASE_PATH)
 
 % Evaluate AOS model with sampled parameter value matrix:
-X_1 = Samples_ValidAOS_Out(1,:);
+X_1 = ValidSamplesAOS_Out(1,:);
 % Check test variable availability & get timeseries length for every output
 % variable:
 [Y1,TestVarSizes] = AAOS_SAFE_EvaluateAOSsimulation(X_1,Config,Directory);
@@ -87,19 +107,19 @@ size_Y = size(Y1,2);
 
 %% Run AOS model for all samples and store the simulated values of the target
 % variable and all available (and user-defined) test variables:
-N = size(Samples_ValidAOS_Out,1);
+N = size(ValidSamplesAOS_Out,1);
 Y = nan(N,size_Y) ;
 for j=1:N
-    X_j = Samples_ValidAOS_Out(j,:);
+    X_j = ValidSamplesAOS_Out(j,:);
     Y(j,:) = AAOS_SAFE_EvaluateAOSsimulation(X_j,Config,Directory);
 end
 
 % Narrow value matrix down to sampled parameters only
-Samples_ValidAOS_In = Samples_AOS_In(Rows_NormedValidEE_samples,:);
+Samples_ValidAOS_In = Samples_AOS_In(Rows_ValidSamplesNormed,:);
 % Samples_Unconverted(rmvPhenoSamples==1,:) = [];
 % Samples_ValidSAFE_In(rmvExceedSamples,:) = [];
 Samples_ValidConvert_In = Samples_ValidAOS_In(:,Col_Conv_SAFEinAOS);
-Samples_ValidSAFE_In = Samples_ValidAOS_Out(:,Col_SAFEinAOS);
+Samples_ValidSAFE_In = ValidSamplesAOS_Out(:,Col_SAFEinAOS);
 Samples_ValidSAFE_In(:,Col_Conv_SAFEinSAFE) = Samples_ValidConvert_In;
 
 X = Samples_ValidSAFE_In;

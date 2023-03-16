@@ -1,7 +1,5 @@
 AAOS/vendor/xlswritefig.m
-AAOS/vendor/violin.m
 AAOS/vendor/AOS*
 AAOS/vendor/AOS/Input/Template*
 AAOS/vendor/safe_R1.1*
-AAOS/funTODO*
-AAOS/AAOS_Output/
+AAOS/AAOS_Output/Template/Figures*

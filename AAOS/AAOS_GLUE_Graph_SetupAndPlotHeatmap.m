@@ -1,0 +1,119 @@
+function AAOS_GLUE_Graph_SetupAndPlotHeatmap(HeatmapValues_AllCombisAllLots,...
+    CombiValues_OnePar,ParName,...
+    PlotType,CombiNamesForTitle,LotNames,N_Lots,N_Combi,StackHeatmaps,...
+    VarCombiNamesShortAll_ChartNames, ParDec, HeatmapParTicks)
+% Determine color bar upper limit from maximum number of hits in all
+% combinations
+if PlotType == "HM_All"
+    % sum up heatmap values from all lots (for respective combinations):
+    HeatmapValues_AllCombisAllLots =...
+        sum(HeatmapValues_AllCombisAllLots(:,:,:,:),3,'omitnan');
+    % transform zero to 'nan' values to obtain white cells for non-hits:
+    HeatmapValues_AllCombisAllLots(HeatmapValues_AllCombisAllLots==0) = nan;
+end
+MaxHit = max(HeatmapValues_AllCombisAllLots(:));
+ymin = min(CombiValues_OnePar(:));
+ymax = max(CombiValues_OnePar(:));
+
+
+TitleHM = strcat("Generalized Likelihood Function (GLF) values of ",ParName,...
+    '\newline', CombiNamesForTitle);
+
+if StackHeatmaps == "Y"
+    figure; hold on;
+    set(gca,'xtick',[], 'ytick',[], 'color','none', 'XColor', 'none','YColor','none'); hold on;
+end
+
+
+if PlotType == "HM_All"
+    N_Lots_HM = 1;
+elseif PlotType == "HM_Lots"
+    N_Lots_HM = N_Lots;
+end
+
+
+
+
+for LotIdx = 1 : N_Lots_HM
+
+
+    if PlotType == "HM_All"
+        SubtitleHM = strcat("All Lots");
+    elseif PlotType == "HM_Lots"
+        SubtitleHM = string(LotNames(LotIdx));
+    end
+
+
+
+    for IdxCombi = 1 : N_Combi
+
+        if PlotType == "HM_All"
+            HeatmapValues =...
+                sum(HeatmapValues_AllCombisAllLots(:,:,:,IdxCombi),3);
+        elseif PlotType == "HM_Lots"
+            HeatmapValues =...
+                HeatmapValues_AllCombisAllLots(:,:,LotIdx,IdxCombi);
+        end
+
+        if StackHeatmaps == "N"
+            PlotPosition = [0.1 0.1 0.8 0.8];
+            figure; hold on;
+        elseif StackHeatmaps == "Y"
+            width = 0.88/N_Lots_HM - 0.02;
+            height = 0.88/N_Combi - 0.02;
+            left = 0.05 + (LotIdx - 1) * (0.01 + width);
+            bottom = 0.05 + (IdxCombi - 1) * (0.01 + height);
+            PlotPosition = [left bottom width height];
+        end
+
+        AAOS_GLUE_Graph_PlotHeatmap(...
+            HeatmapValues, ymin, ymax, PlotPosition);
+
+        if StackHeatmaps == "Y"
+            if LotIdx == 1
+                ylbl = char(strcat('GLF [%]','\newline','(',...
+                    VarCombiNamesShortAll_ChartNames(IdxCombi),')'));
+
+                ylabel({ylbl}, 'FontSize',10);
+                hold on;
+
+            else
+                set(gca,'ytick',[]);
+            end
+            if IdxCombi == 1
+                AAOS_GLUE_Graph_SetHeatmapXaxis(...
+                    ParName, ParDec, HeatmapParTicks);
+                hold on;
+            else
+                xt = get(gca, 'XTick');
+                set(gca, 'XTick',xt, 'XTickLabel',[]);
+                hold on;
+            end
+            set(gca, 'TickDir','out','TickLength',[0.003 0.003]);
+            hold on;
+            if IdxCombi == N_Combi
+                subtitle(SubtitleHM, 'FontSize',12);
+                if LotIdx == ceil(N_Lots_HM/2)
+                    title(TitleHM, 'FontSize',13);
+                end
+            end
+            if LotIdx == N_Lots_HM
+
+                colorbar;
+                ylabel(colorbar,'Hits','FontSize',10,'Rotation',90);
+                caxis([1 MaxHit])
+
+                hold on;
+            end
+
+        elseif StackHeatmaps == "N"
+            AAOS_GLUE_Graph_SetHeatmapXaxis(...
+                ParName, ParDec, HeatmapParTicks);
+            ylabel("ARE ("+TargetVarNameShort+") [%]");
+            title(TitleHM);
+            hold off;
+        end
+
+    end
+end
+hold off;

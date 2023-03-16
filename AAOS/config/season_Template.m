@@ -1,20 +1,20 @@
 % Select plots to be analysed:
 % Options: x; [x y..];
-Config.SimulationLots = [9]; % [8 9 13 14 18 19];
+Config.SimulationLots = [8 9 13 14 18 19];
 Config.CalibrationLots = Config.SimulationLots;
 % % Validation:
 % Config.ValidationLots = [];
 
-% Define number of sampling points 'r' for LHS:
-Config.r_target = 2;
+% Define number of simulation runs = parameter combinations:
+Config.N_SimTarget = 100;
 Config.TargetVarEE = "Biomass"; % Yield or Biomass
-% Determine the number of samples to be created and tested against
-% phenological conflicts ("Config.r_test"), as a multitude of the number of
-% valid samples that should be created in the end ("Config.r_target").
+% Determine the number of parameter combinations to be simulated and tested
+% against phenological conflicts ("Config.r_test"), as a multitude of the 
+% number of valid samples that should be created in the end ("Config.r_target").
 % Their relationship depends on the specified conflicts and crop/weather
 % input data (the fewer the possible valid options for phenology parameters,
 % the higher the factor should be): 
-Config.r_test = Config.r_target * 15; % *5
+Config.N_SimTest = Config.N_SimTarget;
 
 % Either load existing samples ("0") or create new samples ("1"):
 Config.CreateNewSamples = 0;

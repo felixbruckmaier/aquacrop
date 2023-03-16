@@ -89,6 +89,14 @@ if ismember(Config.RUN_type,["DEF","CAL"])
     AnalysisOut = AAOS_ModelEval_StoreTestLotsAndObservations(Config);
 else
     AnalysisOut.TargetVar = Config.TargetVar;
+
+    % Merge time-series charts (i.e., scatter, stock, heat map):
+    Config.GLUE_ChartNames = struct;
+    Config.GLUE_ChartNames.Boxcharts = ["BC_Combi","BC_Lots"];
+    Config.GLUE_ChartNames.Heatmaps = ["HM_All","HM_Lots"];
+    Config.GLUE_ChartNames.NonTimeSeriesCharts =...
+        ["CDF","Q",Config.GLUE_ChartNames.Boxcharts,Config.GLUE_ChartNames.Heatmaps];
+
 end
 
 % Get default harvest day for every simulation lot ('Maturity' from AOS

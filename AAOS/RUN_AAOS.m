@@ -11,7 +11,8 @@
 %% NOTE: The tool automatizes the AOS model run to facilitate an easier and
 % more efficient comparison of different simulation outputs, it does NOT
 % enable automatical calibration, hence the user is required to still manually
-% calibrate AOS, by adjusting the parameter values in the AAOS speadsheet
+% calibrate AOS, by adjusting the 
+% parameter values in the AAOS speadsheet
 % input files.
 %% - Parameter sensitivity analysis via the 'Morris method'/ Elementary
 %% Effects (link to SAFE toolbox);

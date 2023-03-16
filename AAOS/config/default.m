@@ -2,7 +2,7 @@
 
 %% 1) Define general input and output settings:
 % 1.1) Choose season (default: "template"):
-Config.season = "2021";
+Config.season = "Template";
 % 1.2) Select type of analysis
 % ... available:
 % - Generalized Likelihood Uncertainty Estimation ("GLUE")
@@ -10,17 +10,40 @@ Config.season = "2021";
 Config.RUN_type = "GLUE";
 % 1.3) Add additional text to output filename (-> inserted at the end):
 Config.filename_xtra = "";
-% 1.4) Determine type of graphical output to be created:
-% - available for EE: Sensitivity analysis of parameters ("EE")
-% - available for GLUE (model error analysis for test and/or target variables)
-% -- Time-series analysis ("TS")
-% -- Time-series analysis/ Predicton limits ("PS")
-% -- Culminated distribution function ("CDF")
-% -- Analysis through quadrants ("Q")
-Config.PlotGraphs = ["CDF"]; % "EE","TS","PL","CDF","Q"
-% 1.5) Decide whether to save graphical output in Excel ("Y" or "N")
-% (only available for Excel file format “.xlsx”)
-Config.WriteFig = "Y";
+% 1.4) Determine type of graphical output to be created
+% (Config.PlotGraphs = ["x", "y", ...])
+%
+%% - CURRENTLY UNavailable for EE:
+% -- Sensitivity analysis of parameters ("EE")
+%
+% - available for GLUE (model error analysis for variables & parameters):
+%% -- Time-series analysis ("TS")
+%% -- Time-series analysis/ Predicton limits ("PL")
+%% -- Culminated distribution function for variables ("CDF")
+%% -- Distribution of simulations according to model error for 2 variables,
+%% classified in quadrants ("Q")
+% -- Distribution of behavioural parameter values through boxcharts
+%% ---> 1 boxchart = 1 variable combination for all lots & 1 parameter ("BC_Combi")
+%% ---> 1 boxchart = 1 lot for 1 variable combination & 1 parameter ("BC_Lots")
+% -- Distribution of all parameter values with respect to GLF values classified
+% within heatmap, differentiated between lots & variable combinations:
+%% ---> differentiated between lots and variable combinations ("HM_Lots")
+%% ---> differentiated between variable combinations only ("HM_All")
+%% ---> Additional option: all lots & variable combinations stacked within 1 figure
+%% or distributed over separate figures ("Config.StackHeatmaps")
+
+Config.PlotGraphs = ["TS","PL","CDF","Q","BC_Combi","BC_Lots","HM_Lots","HM_All"];
+% 1.5) Parameter visualization options can result in a high number of graphical
+% plots - specify a reduced number of parameters to plot in the following
+% array ["x", "y", ...] (when left empty, all parameters will be plotted):
+Config.ParametersToPlot = ["Ksat", "th_fc", "th_wp", "Senescence"];
+% 1.6) Stack heatmaps for different lots or variable combinations ("Y") or
+% plot them in separate figures ("N"):
+Config.StackHeatmaps = "Y";
+% 1.7) Decide which output to save in Excel sheet: "Y" or "N", respectively
+% (only available for Excel file format ".xlsx")
+Config.WriteFig = "N"; % Write figures
+Config.WriteNum = "N"; % Write numerical output
 
 %% 2) Define SAFE settings (“Sensitivity Analysis For Everybody” toolbox):
 % 2.1) Select error thresholds for determining the model’s goodness of fit (GoF):
@@ -32,6 +55,8 @@ Config.thresh_TestVar = 15; % ... for test variable simulations
 % 2.2) Select sampling strategy & design of sampling space exploration:
 Config.SampStrategy = 'lhs' ; % Latin Hypercube Sampling (LHS)                                      
 Config.DesignType = 'radial'; % 'radial' or 'trajectory'
+% 2.3) Define parameters to be sampled in log scale ["x", "y"]
+Config.LogScalePars = ["Ksat"];
 
 %% 3) Define output specifications:
 % 3.2) Graphical output:

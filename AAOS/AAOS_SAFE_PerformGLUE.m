@@ -14,10 +14,10 @@ PredictLimits = nan(4,1);
 LotsObs = Config.TargetVar.Observations;
 [~,row_Lot] = ismember(Config.LotName,LotsObs(:,1));
 
-%% Get Day of Harvest for every simulation (eual to 'Maturity')
+%% Get Day of Harvest for every simulation (equal to 'Maturity')
 % .. depending on whether Maturity is a variable parameter (a) or not (b)
 HarvestDays = nan(size(SimOut,1),1);
-if ismember("Maturity",Config.SampledParNames)
+if ismember("Maturity",SamplingOut.ParameterNames)
     % a) Get resp. adjusted value for every simulation:
     HarvestDays = SimOut(6:end,4);
 else

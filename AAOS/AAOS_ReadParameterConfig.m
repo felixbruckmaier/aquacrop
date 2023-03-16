@@ -8,7 +8,6 @@ Config.AllParameterNames = table2array(ParInputData(:,1));
 % (i.e. contain same parameter names & specifications and lots)
 
 %% USELESS (?) - specified in AAOS_ReadParameterValues:
-
 % Config.AllParameterAOSfile = string(table2array(ParInputData(:,2)));
 % Config.AllParameterNumber = size(Config.AllParameterNames,1);
 

@@ -4,9 +4,8 @@
 % AOS files)
 %
 % Usage:
-% AAOS_ReplaceVariableInFile("Config","Directory","Soil","0","Zsoil","2");
+% AAOS_ReplaceVariableInFile("Config","Directory","Soil","Zsoil","2");
 
-%[Filename] =
 function [] = AAOS_OverwriteVariableInAOSfile(Config, Directory, ...
     Filename,VarName,VarValue)
 
@@ -22,7 +21,7 @@ elseif Filename == "Clock"
 elseif Filename == "CropRotation"
     varnames = {'PlantDate';'HarvestDate'};
 elseif Filename == "IrrigationSchedule"
-    SkipCell = 1;
+    SkipCell = -1;
     colWidth = 12;
     varnames = {'Day';'Month';'Year';'Irrigation'};
 elseif Filename == "InitialWaterContent"
@@ -46,7 +45,7 @@ elseif Filename == "Crop"
         'fshape_w4'};
 elseif Filename == "IrrigationManagement"
     SkipCell = 1;
-    colWidth = 26;
+    colWidth = 28;
     varnames = {'IrrMethod';'IrrInterval';'SMT1';'SMT2';'SMT3';'SMT4';...
         'MaxIrr';'AppEff';'NetIrrSMT';'WetSurf'};
 elseif Filename == "Soil"
@@ -57,6 +56,10 @@ elseif Filename == "SoilHydrology"
     SkipCell = 1;
     colWidth = 20;
     varnames = {'th_s','th_fc','th_wp','Ksat','Penetrability'};
+elseif Filename == "Weather"
+    varnames = {'ETo'};
+    SkipCell = 4;
+    colWidth = 17;
 else
     fprintf(2,'Could not find template: ' + Filename + '\n\n');
 end
@@ -105,6 +108,9 @@ else
 
         if Filename == "CropRotation"
             DataArr(1,:) = split(Data(3,:));
+        elseif Filename == "IrrigationSchedule"
+            DataArr = table2array(readtable(File));
+            DataArr = DataArr(:,[1:4]);
         else
             DataArr = table2array(readtable(File));
         end
@@ -118,7 +124,7 @@ else
             spaces = [8, 12, 10];
 
         elseif Filename == "IrrigationSchedule"
-            DataArr = VarValue;
+            DataArr(:,VarIdx) = VarValue;
             N_col = 4;
             spaces = [5, 5, 6];
         elseif Filename == "CropRotation"

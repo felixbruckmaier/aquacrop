@@ -31,11 +31,8 @@ for idx_Samples = 1:n
     % Assign computed YldForm value to last column, if phenology constraints met: 
     if breakloop == 0  
         Samples_Conv_All(idx_Samples,N_ParAll + 1) = Config.AllParameterValues(end);
-    else % actually unnecessary, just to crosscheck which samples are invalid:
+    else % actually not necessary, just to crosscheck which samples are invalid:
         Samples_Conv_All(idx_Samples,:) = nan;
     end
 
 end
-% For GLUE: Just remove invalid samples: 
-% Samples_Conv_All(Rows_rmvPheno==1,:) = [];
-% (More complex for EE/ Morris method, see respective function)
