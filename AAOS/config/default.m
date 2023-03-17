@@ -1,4 +1,4 @@
-%% General, season-independent specifications to be determined by the user
+%% General, study-independent specifications to be determined by the user
 
 %% 1) Define general input and output settings:
 % 1.1) Choose season (default: "template"):
@@ -32,7 +32,8 @@ Config.filename_xtra = "";
 %% ---> Additional option: all lots & variable combinations stacked within 1 figure
 %% or distributed over separate figures ("Config.StackHeatmaps")
 
-Config.PlotGraphs = ["TS","PL","CDF","Q","BC_Combi","BC_Lots","HM_Lots","HM_All"];
+Config.PlotGraphs =...
+    ["TS","PL","CDF","Q","BC_Combi","BC_Lots","HM_Lots","HM_All"];
 % 1.5) Parameter visualization options can result in a high number of graphical
 % plots - specify a reduced number of parameters to plot in the following
 % array ["x", "y", ...] (when left empty, all parameters will be plotted):
