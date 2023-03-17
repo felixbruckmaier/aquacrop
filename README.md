@@ -1,5 +1,5 @@
 # Automated AquaCrop-OpenSource (AAOS) tool
-GLUE and Matlab-based tool to evaluate model errors for large samples of AquaCrop-OS input parameter combinations.
+GLUE and Matlab-based tool to evaluate model errors for large samples of AquaCrop-OS (AOS) input parameter combinations.
 
 ## Table of Contents
 - [Introduction](#introduction)
@@ -17,7 +17,6 @@ This tool is supposed to support AOS model calibration for data-scarce regions. 
 - Microsoft Excel (optional)
 
 ## Setup
-To run the tool: 
 1. Download AAOS
 2. Download & unzip AOS and copy the entire folder to the folder: "..\AAOS\vendor"
 3. Download & unzip SAFE and copy the entire folder to the folder: "..\AAOS\vendor"
