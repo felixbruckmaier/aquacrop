@@ -1,11 +1,15 @@
 # Automated AquaCrop-OpenSource (AAOS) tool
 GLUE and Matlab-based tool to evaluate model errors for large samples of AquaCrop-OS (AOS) input parameter combinations.
 
+## Citation
+[![DOI](https://zenodo.org/badge/472032934.svg)](https://doi.org/10.5281/zenodo.14590485)
+
 ## Table of Contents
 - [Introduction](#introduction)
 - [Technologies](#technologies)
 - [Setup](#setup)
-- [Acknowledgments](#acknowledgments)
+- [Acknowledgements](#acknowledgements)
+- [Supplementary_Resources](#supplementary_resources)
 
 ## Introduction
 This tool is supposed to support AOS model calibration for data-scarce regions. It enables the analysis of AOS model performance for a potentially large number of model input parameter combinations with regard to different model variables (biomass or yield at harvest and/or canopy cover and/or soil water content).
@@ -13,7 +17,7 @@ This tool is supposed to support AOS model calibration for data-scarce regions. 
 ## Technologies
 - MATLAB R2022a
 - AquaCrop-OpenSource (AOS) v.6.0a
-- Sensitivity For Everybody (SAFE) toolbox v.1.1
+- Sensitivity Analysis For Everybody (SAFE) toolbox v.1.1
 - Microsoft Excel (optional)
 
 ## Setup
@@ -41,4 +45,11 @@ end
 Available at: https://www.sciencedirect.com/science/article/pii/S0378377416304589
 - SAFE toolbox: Pianosi, F., Sarrazin, F. and Wagener, T. (2015), ‘A matlab toolbox for global sensitivity analysis’, Environmental Modelling Software 70, 80–85.
 Available at: https://www.sciencedirect.com/science/article/pii/S1364815215001188
-- xlswritefig.m: Michelle Hirsch (2022). xlswritefig (https://github.com/michellehirsch/xlswritefig), GitHub. Retrieved December 8, 2022. 
+- xlswritefig.m: Michelle Hirsch (2022). xlswritefig (https://github.com/michellehirsch/xlswritefig), GitHub. Retrieved December 8, 2022.
+
+## Supplementary_Resources
+_Background/ motivation for developing the tool, and its description and testing:_
+- Bruckmaier, F. (2022), ‘Development of a Matlab tool for automatic sensitivity and uncertainty analysis of the AquaCrop-OS model in data-scarce regions’. [Unpublished master's thesis]. Chair of Hydrology and River Basin Management, TUM Department of Civil, Geo and Environmental Engineering, Technical University of Munich. Available at: [http://dx.doi.org/10.13140/RG.2.2.15557.93920](http://dx.doi.org/10.13140/RG.2.2.35402.13765).
+
+_Background/ motivation for developing the tool - in more detail:_
+- Bruckmaier, F. (2021), ‘Quantification of yield loss due to water and temperaturestress with AquaCrop for wheat in Northern India’. [Unpublished study project]. Chair of Hydrology and River Basin Management, TUM Department of Civil, Geo and Environmental Engineering, Technical University of Munich. Available at: [http://dx.doi.org/10.13140/RG.2.2.15557.93920](http://dx.doi.org/10.13140/RG.2.2.15557.93920). 
