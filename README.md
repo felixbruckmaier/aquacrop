@@ -49,7 +49,7 @@ Available at: https://www.sciencedirect.com/science/article/pii/S136481521500118
 
 ## Supplementary_Resources
 _Background/ motivation for developing the tool, and its description and testing:_
-- Bruckmaier, F. (2022), ‘Development of a Matlab tool for automatic sensitivity and uncertainty analysis of the AquaCrop-OS model in data-scarce regions’. [Unpublished master's thesis]. Chair of Hydrology and River Basin Management, TUM Department of Civil, Geo and Environmental Engineering, Technical University of Munich. Available at: [http://dx.doi.org/10.13140/RG.2.2.15557.93920](http://dx.doi.org/10.13140/RG.2.2.35402.13765).
+- Bruckmaier, F. (2022), ‘Development of a Matlab tool for automatic sensitivity and uncertainty analysis of the AquaCrop-OS model in data-scarce regions’. [Unpublished master's thesis]. Chair of Hydrology and River Basin Management, TUM Department of Civil, Geo and Environmental Engineering, Technical University of Munich. Available at: [http://dx.doi.org/10.13140/RG.2.2.35402.13765](http://dx.doi.org/10.13140/RG.2.2.35402.13765).
 
 _Background/ motivation for developing the tool - in more detail:_
-- Bruckmaier, F. (2021), ‘Quantification of yield loss due to water and temperaturestress with AquaCrop for wheat in Northern India’. [Unpublished study project]. Chair of Hydrology and River Basin Management, TUM Department of Civil, Geo and Environmental Engineering, Technical University of Munich. Available at: [http://dx.doi.org/10.13140/RG.2.2.15557.93920](http://dx.doi.org/10.13140/RG.2.2.15557.93920). 
+- Bruckmaier, F. (2021), ‘Quantification of yield loss due to water and temperature stress with AquaCrop for wheat in Northern India’. [Unpublished study project]. Chair of Hydrology and River Basin Management, TUM Department of Civil, Geo and Environmental Engineering, Technical University of Munich. Available at: [http://dx.doi.org/10.13140/RG.2.2.15557.93920](http://dx.doi.org/10.13140/RG.2.2.15557.93920). 
